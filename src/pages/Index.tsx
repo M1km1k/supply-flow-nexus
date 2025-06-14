@@ -29,7 +29,10 @@ const AppContent = () => {
   // Register service worker for offline functionality
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/serviceWorker.js')
+      // Determine the correct service worker path based on environment
+      const swPath = '/serviceWorker.js';
+      
+      navigator.serviceWorker.register(swPath)
         .then(registration => {
           console.log('InventOMatic: ServiceWorker registration successful', registration.scope);
           
@@ -39,10 +42,18 @@ const AppContent = () => {
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('InventOMatic: New content available, please refresh.');
+                  console.log('InventOMatic: New content available, will update automatically.');
+                  // Automatically update to new version
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
                 }
               });
             }
+          });
+
+          // Listen for controlling service worker changes
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('InventOMatic: Service worker updated, reloading page...');
+            window.location.reload();
           });
         })
         .catch(err => {
@@ -52,10 +63,12 @@ const AppContent = () => {
       // Handle online/offline status
       const handleOnline = () => {
         console.log('InventOMatic: Back online');
+        // Optional: Show a toast notification
       };
 
       const handleOffline = () => {
         console.log('InventOMatic: Now offline - cached content will be served');
+        // Optional: Show a toast notification
       };
 
       window.addEventListener('online', handleOnline);

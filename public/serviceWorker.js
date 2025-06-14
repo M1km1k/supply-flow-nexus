@@ -1,17 +1,16 @@
 
 // Service Worker for InventOMatic - Offline Functionality
-const CACHE_NAME = 'inventomatic-cache-v1';
+const CACHE_NAME = 'inventomatic-cache-v2';
 const urlsToCache = [
   '/',
   '/index.html',
   '/favicon.ico',
-  '/src/index.css',
-  // Add static assets that should be cached
   '/manifest.json'
 ];
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
+  console.log('InventOMatic: Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -22,45 +21,13 @@ self.addEventListener('install', (event) => {
         console.error('InventOMatic: Cache installation failed:', error);
       })
   );
-});
-
-// Fetch event - serve from cache when offline
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        if (response) {
-          return response;
-        }
-        
-        return fetch(event.request).then((response) => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Clone response for caching
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-
-          return response;
-        }).catch(() => {
-          // Return offline page for navigation requests
-          if (event.request.destination === 'document') {
-            return caches.match('/');
-          }
-        });
-      })
-  );
+  // Force the waiting service worker to become the active service worker
+  self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('InventOMatic: Service Worker activating...');
   const cacheWhitelist = [CACHE_NAME];
   
   event.waitUntil(
@@ -73,6 +40,71 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
+    }).then(() => {
+      // Take control of all clients immediately
+      return self.clients.claim();
     })
   );
+});
+
+// Fetch event - serve from cache when offline, with network-first strategy for API calls
+self.addEventListener('fetch', (event) => {
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  event.respondWith(
+    // Try network first, fall back to cache
+    fetch(event.request)
+      .then((response) => {
+        // Check if valid response
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+
+        // Clone response for caching
+        const responseToCache = response.clone();
+
+        caches.open(CACHE_NAME)
+          .then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
+        return response;
+      })
+      .catch(() => {
+        // Network failed, try cache
+        return caches.match(event.request)
+          .then((response) => {
+            if (response) {
+              console.log('InventOMatic: Serving from cache:', event.request.url);
+              return response;
+            }
+            
+            // For navigation requests, return the main page
+            if (event.request.destination === 'document') {
+              return caches.match('/');
+            }
+            
+            // For other requests, return a generic offline response
+            return new Response('Offline - Content not available', {
+              status: 503,
+              statusText: 'Service Unavailable'
+            });
+          });
+      })
+  );
+});
+
+// Handle messages from the main thread
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
