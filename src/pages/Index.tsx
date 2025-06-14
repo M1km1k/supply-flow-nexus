@@ -12,24 +12,43 @@ import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SupplyContextProvider } from "@/contexts/SupplyContext";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useEffect } from "react";
 
 const Index = () => {
+  const isMobile = useIsMobile();
+  
+  // Register service worker for offline functionality
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/serviceWorker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          })
+          .catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+  }, []);
+  
   return (
     <ThemeProvider defaultTheme="light" storageKey="inventomatic-theme">
       <SupplyContextProvider>
-        <SidebarProvider defaultOpen={true}>
+        <SidebarProvider defaultOpen={!isMobile}>
           <div className="min-h-screen flex w-full relative overflow-hidden">
             <AnimatedBackground />
             <AppSidebar />
             <main className="flex-1 flex flex-col relative z-10 min-w-0">
-              <header className="h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center px-6 shadow-lg animate-slide-down flex-shrink-0">
-                <SidebarTrigger className="mr-4 hover:scale-110 transition-transform duration-200 text-gray-700 dark:text-gray-200" />
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
+              <header className="h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center px-4 md:px-6 shadow-lg animate-slide-down flex-shrink-0">
+                <SidebarTrigger className="mr-3 md:mr-4 hover:scale-110 transition-transform duration-200 text-gray-700 dark:text-gray-200" />
+                <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient truncate">
                   InventOMatic
                 </h1>
               </header>
-              <div className="flex-1 p-6 overflow-auto">
-                <div className="max-w-full mx-auto">
+              <div className="flex-1 p-3 md:p-6 overflow-auto">
+                <div className="w-full mx-auto">
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/inventory" element={<InventoryPage />} />
