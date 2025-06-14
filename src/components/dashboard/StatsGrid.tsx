@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DollarSign, Package, ShoppingCart, AlertTriangle } from 'lucide-react';
-import { inventoryFlowData, supplierPerformanceData } from './data/dashboardData';
 
 interface StatsGridProps {
   inventory: any[];
@@ -10,22 +9,19 @@ interface StatsGridProps {
 }
 
 export const StatsGrid: React.FC<StatsGridProps> = ({ inventory, suppliers }) => {
-  const totalValue = inventoryFlowData[inventoryFlowData.length - 1]?.value || 0;
+  const totalValue = inventory.reduce((sum, item) => sum + (item.quantity * (item.unitPrice || 0)), 0);
   const inStockItems = inventory.filter(item => item.status === 'In Stock').length;
   const lowStockItems = inventory.filter(item => item.status === 'Low Stock').length;
-  const activeOrders = supplierPerformanceData.reduce((sum, supplier) => sum + supplier.totalOrders, 0);
-
-  // Convert USD to PHP (approximate conversion rate: 1 USD = 56 PHP)
-  const convertToPHP = (usdValue: number) => Math.round(usdValue * 56);
+  const outOfStockItems = inventory.filter(item => item.status === 'Out of Stock').length;
 
   const stats = [
     {
       title: 'Total Inventory Value',
-      value: `₱${convertToPHP(totalValue).toLocaleString()}`,
+      value: `₱${totalValue.toLocaleString()}`,
       icon: DollarSign,
       color: 'from-green-500 to-green-600',
       bgColor: 'from-green-50 to-green-100',
-      change: '+8.4%',
+      change: '+0%',
       description: 'Total asset value'
     },
     {
@@ -34,17 +30,17 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ inventory, suppliers }) =>
       icon: Package,
       color: 'from-blue-500 to-blue-600',
       bgColor: 'from-blue-50 to-blue-100',
-      change: '+12.3%',
+      change: '+0%',
       description: 'Items in stock'
     },
     {
-      title: 'Active Orders',
-      value: activeOrders.toString(),
+      title: 'Total Items',
+      value: inventory.length.toString(),
       icon: ShoppingCart,
       color: 'from-purple-500 to-purple-600',
       bgColor: 'from-purple-50 to-purple-100',
-      change: '+15.7%',
-      description: 'Pending orders'
+      change: '+0%',
+      description: 'All inventory items'
     },
     {
       title: 'Low Stock Alerts',
@@ -52,7 +48,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ inventory, suppliers }) =>
       icon: AlertTriangle,
       color: 'from-orange-500 to-orange-600',
       bgColor: 'from-orange-50 to-orange-100',
-      change: '-18.2%',
+      change: '+0%',
       description: 'Items need reorder'
     },
   ];
@@ -67,7 +63,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ inventory, suppliers }) =>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.title}</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white animate-number-roll mb-1">{stat.value}</p>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium text-green-600 dark:text-green-400">{stat.change}</span>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.change}</span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">{stat.description}</span>
                 </div>
               </div>
