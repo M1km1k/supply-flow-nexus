@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { ThemeSelector } from './appearance/ThemeSelector';
 import { BackgroundSelector } from './appearance/BackgroundSelector';
 import { FontSizeSlider } from './appearance/FontSizeSlider';
 import { AnimationSpeedSlider } from './appearance/AnimationSpeedSlider';
 import { FontFamilySelector } from './appearance/FontFamilySelector';
+import { FontWeightSelector } from './appearance/FontWeightSelector';
 import { AnimationStyleSelector } from './appearance/AnimationStyleSelector';
 import { DepartmentThemeSelector } from './appearance/DepartmentThemeSelector';
 import { applyFontFamily, applyAnimationStyle, applyAnimationSpeed } from './utils/appearanceUtils';
@@ -16,6 +18,7 @@ export const AppearanceCard: React.FC = () => {
   const [animationSpeed, setAnimationSpeed] = useState([0.6]);
   const [systemPreferences, setSystemPreferences] = useState({
     fontFamily: 'inter',
+    fontWeight: '400',
     animationStyle: 'smooth',
     backgroundAnimation: 'gradient',
     departmentTheme: 'default'
@@ -23,6 +26,7 @@ export const AppearanceCard: React.FC = () => {
 
   useEffect(() => {
     const savedFontFamily = localStorage.getItem('font-family') || 'inter';
+    const savedFontWeight = localStorage.getItem('font-weight') || '400';
     const savedAnimationStyle = localStorage.getItem('animation-style') || 'smooth';
     const savedBackgroundAnimation = localStorage.getItem('background-animation') || 'gradient';
     const savedDepartmentTheme = localStorage.getItem('department-theme') || 'default';
@@ -33,6 +37,7 @@ export const AppearanceCard: React.FC = () => {
 
     setSystemPreferences({
       fontFamily: savedFontFamily,
+      fontWeight: savedFontWeight,
       animationStyle: savedAnimationStyle,
       backgroundAnimation: savedBackgroundAnimation,
       departmentTheme: validDepartmentTheme
@@ -44,6 +49,28 @@ export const AppearanceCard: React.FC = () => {
     applyAnimationStyle(savedAnimationStyle);
     applyAnimationSpeed(savedAnimationSpeed);
     applyFontSizeChanges(savedFontSize, toast);
+
+    // Apply saved font weight
+    if (savedFontWeight !== '400') {
+      document.documentElement.style.setProperty('--font-weight', savedFontWeight);
+      
+      const fontWeightStyles = document.createElement('style');
+      fontWeightStyles.id = 'dynamic-font-weight-styles';
+      fontWeightStyles.textContent = `
+        * {
+          font-weight: ${savedFontWeight} !important;
+        }
+        
+        .font-bold, .font-semibold, .font-medium {
+          font-weight: ${savedFontWeight} !important;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+          font-weight: ${savedFontWeight} !important;
+        }
+      `;
+      document.head.appendChild(fontWeightStyles);
+    }
   }, []);
 
   useEffect(() => {
@@ -56,6 +83,10 @@ export const AppearanceCard: React.FC = () => {
 
   const handleFontFamilyChange = (value: string) => {
     setSystemPreferences(prev => ({ ...prev, fontFamily: value }));
+  };
+
+  const handleFontWeightChange = (value: string) => {
+    setSystemPreferences(prev => ({ ...prev, fontWeight: value }));
   };
 
   const handleAnimationStyleChange = (value: string) => {
@@ -97,6 +128,11 @@ export const AppearanceCard: React.FC = () => {
       <FontFamilySelector 
         value={systemPreferences.fontFamily}
         onChange={handleFontFamilyChange}
+      />
+
+      <FontWeightSelector 
+        value={systemPreferences.fontWeight}
+        onChange={handleFontWeightChange}
       />
 
       <AnimationStyleSelector 
