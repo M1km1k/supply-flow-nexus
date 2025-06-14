@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -17,8 +18,28 @@ export const AppearanceCard: React.FC = () => {
     backgroundAnimation: 'gradient'
   });
 
-  // Auto-apply font family changes
+  // Load preferences from localStorage on component mount
   useEffect(() => {
+    const savedFontFamily = localStorage.getItem('font-family') || 'inter';
+    const savedAnimationStyle = localStorage.getItem('animation-style') || 'smooth';
+    const savedBackgroundAnimation = localStorage.getItem('background-animation') || 'gradient';
+    const savedFontSize = parseInt(localStorage.getItem('font-size') || '16');
+
+    setSystemPreferences({
+      fontFamily: savedFontFamily,
+      animationStyle: savedAnimationStyle,
+      backgroundAnimation: savedBackgroundAnimation
+    });
+    setFontSize([savedFontSize]);
+
+    // Apply saved preferences
+    applyFontFamily(savedFontFamily);
+    applyAnimationStyle(savedAnimationStyle);
+    applyFontSizeChanges(savedFontSize, toast);
+  }, []);
+
+  // Auto-apply font family changes
+  const applyFontFamily = (fontFamily: string) => {
     const getFontFamily = (font: string) => {
       const fonts = {
         'inter': 'Inter, system-ui, -apple-system, sans-serif',
@@ -30,88 +51,104 @@ export const AppearanceCard: React.FC = () => {
       return fonts[font as keyof typeof fonts] || fonts.inter;
     };
 
-    document.documentElement.style.fontFamily = getFontFamily(systemPreferences.fontFamily);
-  }, [systemPreferences.fontFamily]);
+    document.documentElement.style.fontFamily = getFontFamily(fontFamily);
+    localStorage.setItem('font-family', fontFamily);
+  };
 
   // Auto-apply animation style changes
-  useEffect(() => {
-    const applyAnimationStyle = (style: string) => {
-      const root = document.documentElement;
-      
-      // Remove existing animation classes
-      root.classList.remove('animation-smooth', 'animation-bouncy', 'animation-minimal', 'animation-energetic');
-      
-      // Add new animation class
-      root.classList.add(`animation-${style}`);
-      
-      // Create or update animation style rules
-      const existingAnimationStyles = document.getElementById('dynamic-animation-styles');
-      if (existingAnimationStyles) {
-        existingAnimationStyles.remove();
-      }
-      
-      const animationStyles = document.createElement('style');
-      animationStyles.id = 'dynamic-animation-styles';
-      
-      let cssRules = '';
-      
-      switch (style) {
-        case 'bouncy':
-          cssRules = `
-            .animation-bouncy * {
-              animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
-            }
-            .animation-bouncy .animate-fade-in {
-              animation: fade-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            }
-            .animation-bouncy .animate-slide-right {
-              animation: slide-right 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            }
-          `;
-          break;
-        case 'minimal':
-          cssRules = `
-            .animation-minimal * {
-              animation-duration: 0.2s !important;
-              transition-duration: 0.15s !important;
-            }
-            .animation-minimal .animate-bounce {
-              animation: none !important;
-            }
-            .animation-minimal .animate-pulse {
-              animation: none !important;
-            }
-          `;
-          break;
-        case 'energetic':
-          cssRules = `
-            .animation-energetic * {
-              animation-duration: 0.4s !important;
-              transition-duration: 0.3s !important;
-            }
-            .animation-energetic .animate-float {
-              animation: float 1.5s ease-in-out infinite;
-            }
-            .animation-energetic .animate-glow {
-              animation: glow 1s ease-in-out infinite alternate;
-            }
-          `;
-          break;
-        default: // smooth
-          cssRules = `
-            .animation-smooth * {
-              animation-timing-function: ease-out !important;
-              transition-timing-function: ease-out !important;
-            }
-          `;
-      }
-      
-      animationStyles.textContent = cssRules;
-      document.head.appendChild(animationStyles);
-    };
-
-    applyAnimationStyle(systemPreferences.animationStyle);
-  }, [systemPreferences.animationStyle]);
+  const applyAnimationStyle = (style: string) => {
+    const root = document.documentElement;
+    
+    // Remove existing animation classes
+    root.classList.remove('animation-smooth', 'animation-bouncy', 'animation-minimal', 'animation-energetic');
+    
+    // Add new animation class
+    root.classList.add(`animation-${style}`);
+    
+    // Create or update animation style rules
+    const existingAnimationStyles = document.getElementById('dynamic-animation-styles');
+    if (existingAnimationStyles) {
+      existingAnimationStyles.remove();
+    }
+    
+    const animationStyles = document.createElement('style');
+    animationStyles.id = 'dynamic-animation-styles';
+    
+    let cssRules = '';
+    
+    switch (style) {
+      case 'bouncy':
+        cssRules = `
+          .animation-bouncy * {
+            animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+            transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+          }
+          .animation-bouncy .animate-fade-in {
+            animation: fade-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          }
+          .animation-bouncy .animate-slide-right {
+            animation: slide-right 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          }
+          .animation-bouncy button:hover {
+            transform: scale(1.1) !important;
+          }
+        `;
+        break;
+      case 'minimal':
+        cssRules = `
+          .animation-minimal * {
+            animation-duration: 0.15s !important;
+            transition-duration: 0.1s !important;
+          }
+          .animation-minimal .animate-bounce {
+            animation: none !important;
+          }
+          .animation-minimal .animate-pulse {
+            animation: none !important;
+          }
+          .animation-minimal button:hover {
+            transform: scale(1.02) !important;
+          }
+        `;
+        break;
+      case 'energetic':
+        cssRules = `
+          .animation-energetic * {
+            animation-duration: 0.3s !important;
+            transition-duration: 0.2s !important;
+            animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+          }
+          .animation-energetic .animate-float {
+            animation: float 1.2s ease-in-out infinite;
+          }
+          .animation-energetic .animate-glow {
+            animation: glow 0.8s ease-in-out infinite alternate;
+          }
+          .animation-energetic button:hover {
+            transform: scale(1.15) rotate(2deg) !important;
+          }
+          .animation-energetic .animate-fade-in {
+            animation: fade-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          }
+        `;
+        break;
+      default: // smooth
+        cssRules = `
+          .animation-smooth * {
+            animation-timing-function: ease-out !important;
+            transition-timing-function: ease-out !important;
+          }
+          .animation-smooth button:hover {
+            transform: scale(1.05) !important;
+          }
+        `;
+    }
+    
+    animationStyles.textContent = cssRules;
+    document.head.appendChild(animationStyles);
+    
+    localStorage.setItem('animation-style', style);
+  };
 
   // Auto-apply background animation changes
   useEffect(() => {
@@ -126,11 +163,13 @@ export const AppearanceCard: React.FC = () => {
 
   const handleFontSizeChange = (value: number[]) => {
     setFontSize(value);
+    localStorage.setItem('font-size', value[0].toString());
     applyFontSizeChanges(value[0], toast);
   };
 
   const handleFontFamilyChange = (value: string) => {
     setSystemPreferences(prev => ({ ...prev, fontFamily: value }));
+    applyFontFamily(value);
     toast({ 
       title: "Font Updated", 
       description: `Font family changed to ${value.charAt(0).toUpperCase() + value.slice(1)}` 
@@ -139,6 +178,7 @@ export const AppearanceCard: React.FC = () => {
 
   const handleAnimationStyleChange = (value: string) => {
     setSystemPreferences(prev => ({ ...prev, animationStyle: value }));
+    applyAnimationStyle(value);
     toast({ 
       title: "Animation Updated", 
       description: `Animation style changed to ${value.charAt(0).toUpperCase() + value.slice(1)}` 
@@ -233,6 +273,9 @@ export const AppearanceCard: React.FC = () => {
               <SelectItem value="opensans">Open Sans</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-xs text-gray-500">
+            Changes are applied instantly across the entire application
+          </p>
         </div>
 
         <div className="space-y-3">
