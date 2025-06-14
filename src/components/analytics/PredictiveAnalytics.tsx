@@ -5,36 +5,26 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { TrendingUp, AlertTriangle, Package, Calendar } from 'lucide-react';
 import { useSupply } from '@/contexts/SupplyContext';
 
-// Mock predictive data - in real implementation, this would come from ML models
+// Generate empty predictive data
 const generatePredictiveData = (inventory: any[]) => {
   const currentMonth = new Date().getMonth();
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   
   return Array.from({ length: 6 }, (_, i) => {
     const monthIndex = (currentMonth + i + 1) % 12;
-    const baseConsumption = Math.floor(Math.random() * 100) + 50;
-    const seasonalFactor = Math.sin((monthIndex / 12) * 2 * Math.PI) * 20 + 100;
     
     return {
       month: months[monthIndex],
-      predicted: Math.floor(baseConsumption * (seasonalFactor / 100)),
-      confidence: Math.floor(Math.random() * 20) + 80,
-      reorderPoint: Math.floor(baseConsumption * 0.3),
+      predicted: 0,
+      confidence: 0,
+      reorderPoint: 0,
     };
   });
 };
 
 const generateStockoutRisk = (inventory: any[]) => {
-  return inventory
-    .filter(item => item.status === 'Low Stock' || item.quantity <= (item.minThreshold || 10))
-    .map(item => ({
-      name: item.name,
-      currentStock: item.quantity,
-      predicted7Days: Math.max(0, item.quantity - Math.floor(Math.random() * 15) - 5),
-      predicted30Days: Math.max(0, item.quantity - Math.floor(Math.random() * 40) - 10),
-      riskLevel: item.quantity <= 5 ? 'High' : item.quantity <= 15 ? 'Medium' : 'Low'
-    }))
-    .slice(0, 5);
+  // Return empty array since inventory is empty
+  return [];
 };
 
 export const PredictiveAnalytics: React.FC = () => {
@@ -117,27 +107,35 @@ export const PredictiveAnalytics: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {stockoutRisks.map((item, index) => (
-              <div key={item.name} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg animate-slide-right" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 dark:text-white">{item.name}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Current: {item.currentStock} units</p>
-                </div>
-                <div className="text-center px-4">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">7 Days</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">{item.predicted7Days}</p>
-                </div>
-                <div className="text-center px-4">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">30 Days</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">{item.predicted30Days}</p>
-                </div>
-                <div className="flex items-center">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRiskColor(item.riskLevel)}`}>
-                    {item.riskLevel} Risk
-                  </span>
-                </div>
+            {stockoutRisks.length === 0 ? (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <AlertTriangle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No items at risk of stockout</p>
+                <p className="text-sm">Add inventory items to see risk analysis</p>
               </div>
-            ))}
+            ) : (
+              stockoutRisks.map((item, index) => (
+                <div key={item.name} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg animate-slide-right" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 dark:text-white">{item.name}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Current: {item.currentStock} units</p>
+                  </div>
+                  <div className="text-center px-4">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">7 Days</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{item.predicted7Days}</p>
+                  </div>
+                  <div className="text-center px-4">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">30 Days</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{item.predicted30Days}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRiskColor(item.riskLevel)}`}>
+                      {item.riskLevel} Risk
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
