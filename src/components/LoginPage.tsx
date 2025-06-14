@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +7,7 @@ import { Background3D } from './login/Background3D';
 import { LoginForm } from './login/LoginForm';
 import { SampleAccounts } from './login/SampleAccounts';
 import { LoginStyles } from './login/LoginStyles';
+import { applyAnimationSpeed } from '@/components/settings/utils/appearanceUtils';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -15,6 +16,12 @@ export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Apply saved animation speed on component mount
+  useEffect(() => {
+    const savedAnimationSpeed = parseFloat(localStorage.getItem('animation-speed') || '1');
+    applyAnimationSpeed(savedAnimationSpeed);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
