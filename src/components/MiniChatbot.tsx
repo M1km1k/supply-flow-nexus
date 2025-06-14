@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSupply } from '@/contexts/SupplyContext';
-import { Trash2, MessageSquare, Clock, ChevronDown, ArrowDown } from 'lucide-react';
+import { Trash2, MessageSquare, Clock, ChevronDown, ArrowDown, Edit2, Check, X } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
@@ -24,6 +23,8 @@ export const MiniChatbot: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [showHistory, setShowHistory] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
   const { inventory, suppliers, transactions } = useSupply();
   
   // Store messages in localStorage
@@ -122,9 +123,120 @@ export const MiniChatbot: React.FC = () => {
     localStorage.removeItem('inventomatic-chat-history');
   };
   
+  const handleEditMessage = (id: string, currentText: string) => {
+    setEditingId(id);
+    setEditText(currentText);
+  };
+  
+  const handleSaveEdit = (id: string) => {
+    if (!editText.trim()) return;
+    
+    setMessages(prev => prev.map(msg => 
+      msg.id === id ? { ...msg, text: editText.trim() } : msg
+    ));
+    setEditingId(null);
+    setEditText('');
+  };
+  
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditText('');
+  };
+  
+  const handleDeleteMessage = (id: string) => {
+    setMessages(prev => prev.filter(msg => msg.id !== id));
+  };
+  
   // Split messages into recent and history
   const recentMessages = messages.slice(-4); // Show last 4 messages by default
   const historyMessages = messages.slice(0, -4); // Messages before the recent ones
+
+  const renderMessage = (message: ChatMessage) => {
+    const isEditing = editingId === message.id;
+    
+    return (
+      <div
+        key={message.id}
+        className={`group p-2 rounded-lg text-xs relative ${
+          message.isBot
+            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 ml-4'
+        }`}
+      >
+        {isEditing ? (
+          <div className="space-y-2">
+            <Input
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              className="text-xs h-8"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSaveEdit(message.id);
+                }
+                if (e.key === 'Escape') {
+                  handleCancelEdit();
+                }
+              }}
+              autoFocus
+            />
+            <div className="flex space-x-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleSaveEdit(message.id)}
+                className="h-6 px-2 text-green-600 hover:text-green-800 hover:bg-green-100"
+              >
+                <Check className="w-3 h-3" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleCancelEdit}
+                className="h-6 px-2 text-red-600 hover:text-red-800 hover:bg-red-100"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-start">
+              <div className="flex-1 pr-2">{message.text}</div>
+              <div className="flex items-center space-x-1">
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 shrink-0">
+                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            </div>
+            
+            {/* Action buttons - only show on hover for non-bot messages or when not the initial message */}
+            {(!message.isBot || message.id !== '1') && (
+              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
+                {!message.isBot && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleEditMessage(message.id, message.text)}
+                    className="h-5 w-5 p-0 text-gray-500 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleDeleteMessage(message.id)}
+                  className="h-5 w-5 p-0 text-gray-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
     <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
@@ -165,23 +277,7 @@ export const MiniChatbot: React.FC = () => {
               
               {showHistory && (
                 <div className="mt-2 border-l-2 border-gray-200 dark:border-gray-700 pl-2 space-y-2">
-                  {historyMessages.map(message => (
-                    <div
-                      key={message.id}
-                      className={`p-2 rounded-lg text-xs ${
-                        message.isBot
-                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 ml-4'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>{message.text}</div>
-                        <div className="text-[10px] text-gray-500 dark:text-gray-400 ml-2 shrink-0">
-                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                  {historyMessages.map(renderMessage)}
                   
                   <div className="flex justify-center">
                     <div className="bg-gray-200 dark:bg-gray-700 h-px w-full my-2"></div>
@@ -192,23 +288,7 @@ export const MiniChatbot: React.FC = () => {
           )}
           
           {/* Recent messages */}
-          {recentMessages.map(message => (
-            <div
-              key={message.id}
-              className={`p-2 rounded-lg text-xs ${
-                message.isBot
-                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 ml-4'
-              }`}
-            >
-              <div className="flex justify-between items-start">
-                <div>{message.text}</div>
-                <div className="text-[10px] text-gray-500 dark:text-gray-400 ml-2 shrink-0">
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>
-              </div>
-            </div>
-          ))}
+          {recentMessages.map(renderMessage)}
           
           {messages.length > 4 && (
             <Button 
