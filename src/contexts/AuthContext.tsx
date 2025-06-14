@@ -1,0 +1,134 @@
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+export type UserRole = 'admin' | 'manager' | 'staff' | 'viewer';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  department: string;
+  permissions: Permission[];
+}
+
+export interface Permission {
+  resource: string;
+  actions: ('create' | 'read' | 'update' | 'delete')[];
+}
+
+interface AuthContextType {
+  user: User | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
+  hasPermission: (resource: string, action: string) => boolean;
+  isAdmin: () => boolean;
+  isManager: () => boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+// Mock user data - in real implementation, this would come from backend
+const mockUsers: User[] = [
+  {
+    id: '1',
+    name: 'John Administrator',
+    email: 'admin@institution.edu',
+    role: 'admin',
+    department: 'IT Services',
+    permissions: [
+      { resource: 'inventory', actions: ['create', 'read', 'update', 'delete'] },
+      { resource: 'suppliers', actions: ['create', 'read', 'update', 'delete'] },
+      { resource: 'users', actions: ['create', 'read', 'update', 'delete'] },
+      { resource: 'reports', actions: ['create', 'read', 'update', 'delete'] },
+      { resource: 'settings', actions: ['create', 'read', 'update', 'delete'] }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Sarah Manager',
+    email: 'manager@institution.edu',
+    role: 'manager',
+    department: 'Procurement',
+    permissions: [
+      { resource: 'inventory', actions: ['create', 'read', 'update'] },
+      { resource: 'suppliers', actions: ['create', 'read', 'update'] },
+      { resource: 'reports', actions: ['read', 'create'] },
+      { resource: 'transactions', actions: ['create', 'read', 'update'] }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Mike Staff',
+    email: 'staff@institution.edu',
+    role: 'staff',
+    department: 'Operations',
+    permissions: [
+      { resource: 'inventory', actions: ['read', 'update'] },
+      { resource: 'transactions', actions: ['create', 'read'] },
+      { resource: 'suppliers', actions: ['read'] }
+    ]
+  }
+];
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // Check for stored session
+    const storedUser = localStorage.getItem('inventomatic_user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      // Auto-login as admin for demo purposes
+      setUser(mockUsers[0]);
+      localStorage.setItem('inventomatic_user', JSON.stringify(mockUsers[0]));
+    }
+  }, []);
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    // Mock authentication - in real implementation, this would validate against backend
+    const foundUser = mockUsers.find(u => u.email === email);
+    if (foundUser) {
+      setUser(foundUser);
+      localStorage.setItem('inventomatic_user', JSON.stringify(foundUser));
+      return true;
+    }
+    return false;
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('inventomatic_user');
+  };
+
+  const hasPermission = (resource: string, action: string): boolean => {
+    if (!user) return false;
+    const permission = user.permissions.find(p => p.resource === resource);
+    return permission?.actions.includes(action as any) || false;
+  };
+
+  const isAdmin = (): boolean => user?.role === 'admin' || false;
+  const isManager = (): boolean => user?.role === 'manager' || user?.role === 'admin' || false;
+
+  return (
+    <AuthContext.Provider value={{
+      user,
+      login,
+      logout,
+      hasPermission,
+      isAdmin,
+      isManager
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};

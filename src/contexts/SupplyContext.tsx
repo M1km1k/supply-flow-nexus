@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface InventoryItem {
@@ -60,6 +59,9 @@ interface SupplyContextType {
   addAuditLog: (log: Omit<AuditLog, 'id' | 'timestamp'>) => void;
   lowStockThreshold: number;
   setLowStockThreshold: (threshold: number) => void;
+  triggerAutomationRules: (trigger: string, context: any) => void;
+  generatePredictiveReport: () => any;
+  getInventoryTrends: () => any[];
 }
 
 const SupplyContext = createContext<SupplyContextType | undefined>(undefined);
@@ -103,6 +105,81 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
     setAuditLogs(prev => [newLog, ...prev]);
   };
 
+  const triggerAutomationRules = (trigger: string, context: any) => {
+    console.log(`Automation trigger: ${trigger}`, context);
+    
+    // Add audit log for automation events
+    addAuditLog({
+      action: 'Automation Triggered',
+      user: 'System',
+      details: `Automation rule triggered: ${trigger}`,
+      category: 'system'
+    });
+
+    // Simulate automation actions
+    if (trigger === 'low_stock' && context.item) {
+      // Auto-generate reorder recommendation
+      console.log(`Low stock alert for ${context.item.name} - Current: ${context.item.quantity}`);
+    }
+  };
+
+  const generatePredictiveReport = () => {
+    const trends = getInventoryTrends();
+    const lowStockPredictions = inventory
+      .filter(item => item.quantity <= lowStockThreshold * 1.5)
+      .map(item => ({
+        itemId: item.id,
+        itemName: item.name,
+        currentStock: item.quantity,
+        predictedStockout: calculateStockoutDate(item),
+        recommendedReorderDate: calculateReorderDate(item),
+        riskLevel: item.quantity <= 5 ? 'High' : item.quantity <= 15 ? 'Medium' : 'Low'
+      }));
+
+    return {
+      trends,
+      predictions: lowStockPredictions,
+      generatedAt: new Date().toISOString()
+    };
+  };
+
+  const getInventoryTrends = () => {
+    // Simulate trend analysis based on transactions
+    const last6Months = Array.from({ length: 6 }, (_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const monthTransactions = transactions.filter(t => 
+        new Date(t.date).getMonth() === date.getMonth()
+      );
+
+      return {
+        month: date.toLocaleDateString('en-US', { month: 'short' }),
+        inbound: monthTransactions.filter(t => t.type === 'inbound').length,
+        outbound: monthTransactions.filter(t => t.type === 'outbound').length,
+        value: Math.floor(Math.random() * 10000) + 5000 // Mock value
+      };
+    }).reverse();
+
+    return last6Months;
+  };
+
+  const calculateStockoutDate = (item: InventoryItem): string => {
+    // Simple prediction based on average consumption
+    const avgConsumption = Math.max(1, Math.floor(item.quantity / 30)); // Mock calculation
+    const daysUntilStockout = Math.floor(item.quantity / avgConsumption);
+    const stockoutDate = new Date();
+    stockoutDate.setDate(stockoutDate.getDate() + daysUntilStockout);
+    return stockoutDate.toISOString().split('T')[0];
+  };
+
+  const calculateReorderDate = (item: InventoryItem): string => {
+    const stockoutDate = new Date(calculateStockoutDate(item));
+    const leadTime = 7; // Default 7 days lead time
+    const reorderDate = new Date(stockoutDate);
+    reorderDate.setDate(reorderDate.getDate() - leadTime);
+    return reorderDate.toISOString().split('T')[0];
+  };
+
   const addInventoryItem = (item: Omit<InventoryItem, 'id'>) => {
     const newItem: InventoryItem = { ...item, id: generateId() };
     setInventory(prev => [...prev, newItem]);
@@ -113,21 +190,37 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
       itemAffected: item.name,
       category: 'inventory'
     });
+
+    // Trigger automation for new items
+    triggerAutomationRules('new_item', { item: newItem });
   };
 
   const updateInventoryItem = (id: string, itemUpdate: Partial<InventoryItem>) => {
+    const oldItem = inventory.find(i => i.id === id);
     setInventory(prev => prev.map(item => 
       item.id === id ? { ...item, ...itemUpdate } : item
     ));
-    const item = inventory.find(i => i.id === id);
-    if (item) {
+    
+    if (oldItem) {
+      const updatedItem = { ...oldItem, ...itemUpdate };
+      
       addAuditLog({
         action: 'Item Updated',
         user: 'Current User',
-        details: `Updated item: ${item.name}`,
-        itemAffected: item.name,
+        details: `Updated item: ${oldItem.name}`,
+        itemAffected: oldItem.name,
         category: 'inventory'
       });
+
+      // Check for low stock automation triggers
+      if (updatedItem.quantity <= lowStockThreshold && oldItem.quantity > lowStockThreshold) {
+        triggerAutomationRules('low_stock', { item: updatedItem });
+      }
+
+      // Check for out of stock triggers
+      if (updatedItem.quantity === 0 && oldItem.quantity > 0) {
+        triggerAutomationRules('out_of_stock', { item: updatedItem });
+      }
     }
   };
 
@@ -239,6 +332,9 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
       addAuditLog,
       lowStockThreshold,
       setLowStockThreshold,
+      triggerAutomationRules,
+      generatePredictiveReport,
+      getInventoryTrends,
     }}>
       {children}
     </SupplyContext.Provider>
