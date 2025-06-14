@@ -11,18 +11,20 @@ import { SettingsPage } from "@/components/SettingsPage";
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SupplyContextProvider } from "@/contexts/SupplyContext";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
 
 const Index = () => {
   return (
     <ThemeProvider defaultTheme="light" storageKey="sms-theme">
       <SupplyContextProvider>
         <SidebarProvider defaultOpen={true}>
-          <div className="min-h-screen flex w-full bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+          <div className="min-h-screen flex w-full relative overflow-hidden">
+            <AnimatedBackground />
             <AppSidebar />
-            <main className="flex-1 flex flex-col">
-              <header className="h-16 border-b bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm flex items-center px-6 shadow-sm">
-                <SidebarTrigger className="mr-4" />
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <main className="flex-1 flex flex-col relative z-10">
+              <header className="h-16 border-b bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm flex items-center px-6 shadow-sm animate-slide-down">
+                <SidebarTrigger className="mr-4 hover:scale-110 transition-transform duration-200" />
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
                   Supply Management System
                 </h1>
               </header>
