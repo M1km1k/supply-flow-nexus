@@ -9,6 +9,7 @@ import { SuppliersPage } from "@/components/SuppliersPage";
 import { TransactionsPage } from "@/components/TransactionsPage";
 import { AuditTrailPage } from "@/components/AuditTrailPage";
 import { SettingsPage } from "@/components/SettingsPage";
+import { LoginPage } from "@/components/LoginPage";
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SupplyContextProvider } from "@/contexts/SupplyContext";
@@ -17,11 +18,12 @@ import { BackgroundManager } from "@/components/BackgroundManager";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Shield, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Shield, User, LogOut } from "lucide-react";
 
 const AppContent = () => {
   const isMobile = useIsMobile();
-  const { user } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const [backgroundStyle, setBackgroundStyle] = useState('gradient');
   
   // Register service worker for offline functionality
@@ -55,6 +57,15 @@ const AppContent = () => {
       window.removeEventListener('backgroundAnimationChange', handleBackgroundChange as EventListener);
     };
   }, []);
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
   
   return (
     <SidebarProvider defaultOpen={!isMobile}>
@@ -70,9 +81,9 @@ const AppContent = () => {
               </h1>
             </div>
             
-            {/* User Info in Header */}
+            {/* User Info and Logout Button */}
             {user && (
-              <div className="flex items-center space-x-2 animate-slide-left">
+              <div className="flex items-center space-x-2 sm:space-x-4 animate-slide-left">
                 <Badge variant="secondary" className="hidden sm:flex">
                   <Shield className="w-3 h-3 mr-1" />
                   {user.role.toUpperCase()}
@@ -81,6 +92,15 @@ const AppContent = () => {
                   <User className="w-4 h-4" />
                   <span className="hidden md:inline">{user.name}</span>
                 </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  className="flex items-center space-x-1 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Logout</span>
+                </Button>
               </div>
             )}
           </header>

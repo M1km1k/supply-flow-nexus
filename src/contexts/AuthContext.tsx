@@ -19,6 +19,7 @@ export interface Permission {
 
 interface AuthContextType {
   user: User | null;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   hasPermission: (resource: string, action: string) => boolean;
@@ -81,24 +82,31 @@ const mockUsers: User[] = [
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     // Check for stored session
     const storedUser = localStorage.getItem('inventomatic_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-    } else {
-      // Auto-login as admin for demo purposes
-      setUser(mockUsers[0]);
-      localStorage.setItem('inventomatic_user', JSON.stringify(mockUsers[0]));
+      setIsAuthenticated(true);
     }
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     // Mock authentication - in real implementation, this would validate against backend
     const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser) {
+    
+    // Simple password check (in real app, this would be properly hashed)
+    const validPasswords: { [key: string]: string } = {
+      'admin@institution.edu': 'admin123',
+      'manager@institution.edu': 'manager123',
+      'staff@institution.edu': 'staff123'
+    };
+    
+    if (foundUser && validPasswords[email] === password) {
       setUser(foundUser);
+      setIsAuthenticated(true);
       localStorage.setItem('inventomatic_user', JSON.stringify(foundUser));
       return true;
     }
@@ -107,6 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
+    setIsAuthenticated(false);
     localStorage.removeItem('inventomatic_user');
   };
 
@@ -122,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={{
       user,
+      isAuthenticated,
       login,
       logout,
       hasPermission,
