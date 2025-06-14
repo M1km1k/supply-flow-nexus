@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff } from 'lucide-react';
+import { TermsAndConditions } from './TermsAndConditions';
 
 interface LoginFormProps {
   email: string;
@@ -24,7 +25,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <Card className="shadow-3d backdrop-blur-xl bg-white/90 border-white/30 transform-gpu hover:shadow-4xl transition-all duration-700 animate-card-float hover:animate-card-hover">
+    <Card className="shadow-3d backdrop-blur-xl bg-white/90 border-white/30 transform-gpu hover:shadow-4xl transition-all duration-700 animate-card-float hover:animate-card-hover relative">
+      <TermsAndConditions />
+      
       <CardHeader className="animate-header-slide-in">
         <CardTitle className="text-center text-gray-800 animate-title-glow">Login</CardTitle>
       </CardHeader>
