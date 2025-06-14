@@ -7,12 +7,14 @@ import { Background3D } from './login/Background3D';
 import { LoginForm } from './login/LoginForm';
 import { SampleAccounts } from './login/SampleAccounts';
 import { LoginStyles } from './login/LoginStyles';
+import { LoadingScreen } from './LoadingScreen';
 import { applyAnimationSpeed } from '@/components/settings/utils/appearanceUtils';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showSampleAccounts, setShowSampleAccounts] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -25,6 +27,7 @@ export const LoginPage: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     const success = await login(email, password);
     if (success) {
@@ -32,8 +35,14 @@ export const LoginPage: React.FC = () => {
         title: "Login Successful",
         description: "Welcome to InventOMatic!",
       });
-      navigate('/');
+      
+      // Show loading screen for 2 seconds before navigating
+      setTimeout(() => {
+        navigate('/');
+        setIsLoading(false);
+      }, 2000);
     } else {
+      setIsLoading(false);
       toast({
         title: "Login Failed",
         description: "Invalid email or password. Please try again.",
@@ -46,6 +55,11 @@ export const LoginPage: React.FC = () => {
     setEmail(account.email);
     setPassword(account.password);
   };
+
+  // Show loading screen during login process
+  if (isLoading) {
+    return <LoadingScreen message="Logging you in..." />;
+  }
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden perspective-1000">
