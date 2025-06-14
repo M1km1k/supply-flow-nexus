@@ -61,34 +61,53 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 animate-gradient-x"></div>
+      
+      {/* Animated orbs */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-20 w-32 h-32 bg-white/20 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-32 w-24 h-24 bg-blue-300/30 rounded-full blur-lg animate-bounce delay-300"></div>
+        <div className="absolute bottom-32 left-40 w-40 h-40 bg-purple-300/20 rounded-full blur-2xl animate-pulse delay-700"></div>
+        <div className="absolute bottom-20 right-20 w-28 h-28 bg-pink-300/25 rounded-full blur-xl animate-bounce delay-1000"></div>
+        <div className="absolute top-1/2 left-10 w-20 h-20 bg-yellow-300/30 rounded-full blur-lg animate-pulse delay-500"></div>
+        <div className="absolute top-1/3 right-10 w-36 h-36 bg-indigo-300/20 rounded-full blur-2xl animate-bounce delay-200"></div>
+      </div>
+
+      {/* Overlay for better content readability */}
+      <div className="absolute inset-0 bg-black/10"></div>
+
+      <div className="w-full max-w-md space-y-6 relative z-10">
         {/* Logo and Title */}
         <div className="text-center space-y-4">
           <div className="flex justify-center">
-            <img 
-              src="/lovable-uploads/4322b65b-5e4b-43e8-b601-f7bd229fcd71.png" 
-              alt="InventOMatic Logo" 
-              className="w-16 h-16 rounded-xl shadow-lg animate-bounce"
-            />
+            <div className="relative">
+              <img 
+                src="/lovable-uploads/4322b65b-5e4b-43e8-b601-f7bd229fcd71.png" 
+                alt="InventOMatic Logo" 
+                className="w-20 h-20 rounded-2xl shadow-2xl animate-bounce"
+              />
+              <div className="absolute inset-0 rounded-2xl bg-white/20 animate-pulse"></div>
+            </div>
           </div>
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-white drop-shadow-lg mb-2">
               InventOMatic
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">Sign in to your account</p>
+            <p className="text-white/90 drop-shadow-md">Sign in to your account</p>
           </div>
         </div>
 
         {/* Login Form */}
-        <Card className="shadow-xl">
+        <Card className="shadow-2xl backdrop-blur-md bg-white/95 border-white/20">
           <CardHeader>
-            <CardTitle className="text-center">Login</CardTitle>
+            <CardTitle className="text-center text-gray-800">Login</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-gray-700">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -96,11 +115,12 @@ export const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="bg-white/80 border-gray-200 focus:border-blue-400"
                 />
               </div>
               
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-gray-700">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -109,6 +129,7 @@ export const LoginPage: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    className="bg-white/80 border-gray-200 focus:border-blue-400"
                   />
                   <Button
                     type="button"
@@ -122,7 +143,7 @@ export const LoginPage: React.FC = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg">
                 Sign In
               </Button>
             </form>
@@ -134,20 +155,20 @@ export const LoginPage: React.FC = () => {
           <Button
             variant="outline"
             onClick={() => setShowSampleAccounts(!showSampleAccounts)}
-            className="mb-4"
+            className="mb-4 bg-white/90 hover:bg-white border-white/30 text-gray-700 shadow-lg backdrop-blur-sm"
           >
             {showSampleAccounts ? 'Hide' : 'Show'} Sample Accounts
           </Button>
           
           {showSampleAccounts && (
             <div className="space-y-3">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              <p className="text-sm text-white/90 drop-shadow-md mb-3">
                 Click on any account to auto-fill the login form:
               </p>
               {sampleAccounts.map((account, index) => (
                 <Card 
                   key={index} 
-                  className="cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-105"
+                  className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 bg-white/95 backdrop-blur-md border-white/30"
                   onClick={() => handleSampleLogin(account)}
                 >
                   <CardContent className="p-4">
@@ -159,8 +180,8 @@ export const LoginPage: React.FC = () => {
                           <User className="w-5 h-5 text-green-600" />
                         )}
                         <div className="text-left">
-                          <p className="font-medium">{account.name}</p>
-                          <p className="text-sm text-gray-500">{account.email}</p>
+                          <p className="font-medium text-gray-800">{account.name}</p>
+                          <p className="text-sm text-gray-600">{account.email}</p>
                         </div>
                       </div>
                       <Badge variant={account.role === 'Admin' ? 'default' : 'secondary'}>
@@ -179,6 +200,28 @@ export const LoginPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes gradient-x {
+          0%, 100% {
+            transform: translateX(-50%) translateY(-50%) rotate(0deg);
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+          }
+          33% {
+            transform: translateX(-50%) translateY(-50%) rotate(120deg);
+            background: linear-gradient(45deg, #8b5cf6, #ec4899, #f59e0b);
+          }
+          66% {
+            transform: translateX(-50%) translateY(-50%) rotate(240deg);
+            background: linear-gradient(45deg, #ec4899, #f59e0b, #3b82f6);
+          }
+        }
+        
+        .animate-gradient-x {
+          animation: gradient-x 6s ease-in-out infinite;
+          background-size: 400% 400%;
+        }
+      `}</style>
     </div>
   );
 };
