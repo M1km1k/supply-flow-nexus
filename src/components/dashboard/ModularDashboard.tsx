@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSupply } from '@/contexts/SupplyContext';
@@ -15,13 +15,27 @@ import { NotificationSidebar } from './NotificationSidebar';
 import { NotificationToggle } from './NotificationToggle';
 
 export const ModularDashboard: React.FC = () => {
-  const { inventory, suppliers, transactions } = useSupply();
+  const { inventory, suppliers, transactions, refreshData } = useSupply();
   const { user, hasPermission, isAdmin, isStaff } = useAuth();
   const [visibleWidgets, setVisibleWidgets] = useState<string[]>(
     isStaff() ? [] : ['predictive-analytics']
   );
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (refreshData) {
+        refreshData();
+        setLastRefresh(new Date());
+        console.log('ModularDashboard: Auto-refreshed data at', new Date().toLocaleTimeString());
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [refreshData]);
 
   const toggleWidget = (widgetId: string) => {
     setVisibleWidgets(prev => 
@@ -42,14 +56,14 @@ export const ModularDashboard: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white animate-slide-right">
-            Welcome back, {user?.name}
+            Welcome back, {user?.name || 'User'}
           </h1>
           <div className="flex items-center space-x-2 mt-2">
             <Badge variant="secondary" className="animate-slide-right" style={{ animationDelay: '0.1s' }}>
-              {user?.role?.toUpperCase()}
+              {user?.role?.toUpperCase() || 'USER'}
             </Badge>
             <Badge variant="outline" className="animate-slide-right" style={{ animationDelay: '0.2s' }}>
-              {user?.department}
+              {user?.department || 'General'}
             </Badge>
             {isStaff() && (
               <Badge variant="destructive" className="animate-slide-right" style={{ animationDelay: '0.3s' }}>
@@ -82,6 +96,11 @@ export const ModularDashboard: React.FC = () => {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Auto-refresh indicator */}
+      <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
+        Last updated: {lastRefresh.toLocaleTimeString()}
       </div>
 
       {/* Enhanced Stats Grid */}

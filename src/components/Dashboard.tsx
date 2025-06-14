@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSupply } from '@/contexts/SupplyContext';
 import { CalendarWidget } from '@/components/CalendarWidget';
 import { MiniChatbot } from '@/components/MiniChatbot';
@@ -14,13 +14,27 @@ import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { ModernNotificationSidebar } from '@/components/notifications/ModernNotificationSidebar';
 
 export const Dashboard: React.FC = () => {
-  const { inventory, suppliers, transactions } = useSupply();
+  const { inventory, suppliers, transactions, refreshData } = useSupply();
   const [widgetVisibility, setWidgetVisibility] = useState({
     notifications: true,
     chatbot: true,
     calendar: true
   });
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (refreshData) {
+        refreshData();
+        setLastRefresh(new Date());
+        console.log('Dashboard: Auto-refreshed data at', new Date().toLocaleTimeString());
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [refreshData]);
 
   const toggleWidget = (widget: keyof typeof widgetVisibility) => {
     setWidgetVisibility(prev => ({
@@ -33,6 +47,11 @@ export const Dashboard: React.FC = () => {
     <div className="space-y-6 animate-fade-in relative">
       {/* Header without Notification Toggle */}
       <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
+
+      {/* Auto-refresh indicator */}
+      <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
+        Last updated: {lastRefresh.toLocaleTimeString()}
+      </div>
 
       <StatsGrid inventory={inventory} suppliers={suppliers} />
 

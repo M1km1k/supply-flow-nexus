@@ -22,6 +22,14 @@ export const NotificationSidebar: React.FC<NotificationSidebarProps> = ({
         <div 
           className="fixed inset-0 bg-black/20 z-40"
           onClick={onClose}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              onClose();
+            }
+          }}
+          aria-label="Close notification panel"
         />
       )}
       
@@ -45,6 +53,7 @@ export const NotificationSidebar: React.FC<NotificationSidebarProps> = ({
             size="sm"
             onClick={onClose}
             className="hover:bg-gray-100 dark:hover:bg-gray-700 h-8 w-8 p-0"
+            aria-label="Close notifications"
           >
             <X className="w-4 h-4" />
           </Button>

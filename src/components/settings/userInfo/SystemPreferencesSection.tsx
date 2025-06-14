@@ -26,7 +26,7 @@ export const SystemPreferencesSection: React.FC<SystemPreferencesSectionProps> =
           <Label htmlFor="defaultView">Default Landing Page</Label>
           <Select value={preferences.defaultView} onValueChange={(value) => onPreferenceChange('defaultView', value)}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select default view" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="dashboard">Dashboard</SelectItem>
@@ -41,7 +41,7 @@ export const SystemPreferencesSection: React.FC<SystemPreferencesSectionProps> =
           <Label htmlFor="itemsPerPage">Items Per Page</Label>
           <Select value={preferences.itemsPerPage} onValueChange={(value) => onPreferenceChange('itemsPerPage', value)}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select items per page" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="10">10 items</SelectItem>
@@ -56,7 +56,7 @@ export const SystemPreferencesSection: React.FC<SystemPreferencesSectionProps> =
       <div className="flex items-center justify-between">
         <div>
           <Label>Auto-refresh Data</Label>
-          <p className="text-xs text-gray-500">Automatically update data every 30 seconds</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Automatically update data every 30 seconds</p>
         </div>
         <Switch
           checked={preferences.autoRefresh}
