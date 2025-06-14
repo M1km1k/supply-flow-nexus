@@ -72,7 +72,7 @@ const AppContent = () => {
       <div className="min-h-screen flex w-full relative overflow-hidden">
         <BackgroundManager style={backgroundStyle} />
         <AppSidebar />
-        <div className="flex-1 flex flex-col relative z-10 min-w-0">
+        <div className="flex-1 flex flex-col relative z-10 min-w-0 ml-0">
           <header className="h-14 sm:h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center justify-between px-3 sm:px-4 lg:px-6 shadow-lg animate-slide-down flex-shrink-0">
             <div className="flex items-center min-w-0 flex-1 gap-2 sm:gap-3">
               <SidebarTrigger className="hover:scale-110 transition-transform duration-200 text-gray-700 dark:text-gray-200 flex-shrink-0" />

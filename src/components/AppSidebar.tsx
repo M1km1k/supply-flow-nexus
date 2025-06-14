@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -20,7 +20,8 @@ import {
   Package,
   ArrowUpDown,
   FileText,
-  Home
+  Home,
+  Move
 } from "lucide-react";
 
 const menuItems = [
@@ -36,14 +37,69 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => {
     if (path === "/") return currentPath === "/";
     return currentPath.startsWith(path);
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.drag-handle')) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      });
+      e.preventDefault();
+    }
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      
+      // Constrain to viewport
+      const maxX = window.innerWidth - 280;
+      const maxY = window.innerHeight - 200;
+      
+      setPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY))
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Add global mouse events
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart, position]);
+
   return (
-    <Sidebar className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right min-w-[280px] w-[280px]">
+    <Sidebar 
+      ref={sidebarRef}
+      className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right min-w-[280px] w-[280px] fixed z-[9999] cursor-move"
+      style={{
+        transform: `translate(${position.x}px, ${position.y}px)`,
+        transition: isDragging ? 'none' : 'transform 0.2s ease-out'
+      }}
+      onMouseDown={handleMouseDown}
+    >
       <SidebarContent>
         <div className="p-6 animate-fade-in">
           <div className="flex items-center space-x-3 mb-8">
@@ -54,9 +110,12 @@ export function AppSidebar() {
                 className="w-12 h-12 rounded-xl object-cover animate-float group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 hover:animate-glow"
               />
             </div>
-            <div className="animate-slide-right">
+            <div className="animate-slide-right flex-1">
               <h2 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">InventOMatic</h2>
               <p className="text-xs text-gray-600 dark:text-gray-400 animate-fade-in">Inventory Management</p>
+            </div>
+            <div className="drag-handle cursor-move p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+              <Move className="w-4 h-4 text-gray-500" />
             </div>
           </div>
         </div>
