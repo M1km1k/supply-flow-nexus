@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -180,6 +179,14 @@ export default {
 						transform: 'translateY(0)',
 						opacity: '1'
 					}
+				},
+				'wiggle': {
+					'0%, 100%': { transform: 'rotate(-3deg)' },
+					'50%': { transform: 'rotate(3deg)' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' }
 				}
 			},
 			animation: {
@@ -193,7 +200,9 @@ export default {
 				'bounce-in': 'bounce-in 0.8s ease-out',
 				'spin-slow': 'spin-slow 3s linear infinite',
 				'gradient': 'gradient 3s ease infinite',
-				'number-roll': 'number-roll 0.8s ease-out'
+				'number-roll': 'number-roll 0.8s ease-out',
+				'wiggle': 'wiggle 1s ease-in-out infinite',
+				'float': 'float 3s ease-in-out infinite'
 			}
 		}
 	},

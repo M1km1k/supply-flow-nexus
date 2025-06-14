@@ -15,17 +15,17 @@ import { AnimatedBackground } from "@/components/AnimatedBackground";
 
 const Index = () => {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="sms-theme">
+    <ThemeProvider defaultTheme="light" storageKey="inventomatic-theme">
       <SupplyContextProvider>
         <SidebarProvider defaultOpen={true}>
           <div className="min-h-screen flex w-full relative overflow-hidden">
             <AnimatedBackground />
             <AppSidebar />
             <main className="flex-1 flex flex-col relative z-10">
-              <header className="h-16 border-b bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm flex items-center px-6 shadow-sm animate-slide-down">
-                <SidebarTrigger className="mr-4 hover:scale-110 transition-transform duration-200" />
+              <header className="h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center px-6 shadow-lg animate-slide-down">
+                <SidebarTrigger className="mr-4 hover:scale-110 transition-transform duration-200 text-gray-700 dark:text-gray-200" />
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
-                  Supply Management System
+                  InventOMatic
                 </h1>
               </header>
               <div className="flex-1 p-6 overflow-auto">

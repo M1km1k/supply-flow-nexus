@@ -52,15 +52,15 @@ export function AppSidebar() {
             </div>
             {state !== "collapsed" && (
               <div className="animate-slide-right">
-                <h2 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">SMS</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400 animate-fade-in">Supply Management</p>
+                <h2 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">InventOMatic</h2>
+                <p className="text-xs text-gray-600 dark:text-gray-400 animate-fade-in">Inventory Management</p>
               </div>
             )}
           </div>
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="animate-fade-in">Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="animate-fade-in text-gray-700 dark:text-gray-300">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item, index) => (
@@ -72,7 +72,7 @@ export function AppSidebar() {
                         `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group hover:scale-105 ${
                           isActive(item.url)
                             ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105"
-                            : "text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30"
+                            : "text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:text-gray-900 dark:hover:text-gray-100"
                         }`
                       }
                     >
