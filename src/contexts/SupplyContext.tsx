@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface InventoryItem {
@@ -74,18 +75,9 @@ export const useSupply = () => {
   return context;
 };
 
-const initialInventory: InventoryItem[] = [
-  { id: '1', name: 'Office Paper A4', quantity: 500, unit: 'sheets', supplier: 'Office Supplies Co', dateReceived: '2024-06-10', status: 'In Stock', category: 'Office Supplies', minThreshold: 100 },
-  { id: '2', name: 'Ink Cartridges', quantity: 15, unit: 'pieces', supplier: 'Tech Solutions', dateReceived: '2024-06-12', status: 'Low Stock', category: 'Electronics', minThreshold: 20 },
-  { id: '3', name: 'Cleaning Supplies', quantity: 8, unit: 'bottles', supplier: 'Clean Pro', dateReceived: '2024-06-08', status: 'Low Stock', category: 'Cleaning', minThreshold: 10 },
-  { id: '4', name: 'Laptops', quantity: 25, unit: 'pieces', supplier: 'Tech Solutions', dateReceived: '2024-06-05', status: 'In Stock', category: 'Electronics', minThreshold: 5 },
-];
-
-const initialSuppliers: Supplier[] = [
-  { id: '1', name: 'Office Supplies Co', contact: '+1-555-0123', email: 'contact@officesupplies.com', leadTime: 5, productsSupplied: ['Paper', 'Pens', 'Folders'], address: '123 Business Ave' },
-  { id: '2', name: 'Tech Solutions', contact: '+1-555-0456', email: 'sales@techsolutions.com', leadTime: 7, productsSupplied: ['Computers', 'Printers', 'Ink'], address: '456 Tech Street' },
-  { id: '3', name: 'Clean Pro', contact: '+1-555-0789', email: 'orders@cleanpro.com', leadTime: 3, productsSupplied: ['Cleaning Supplies', 'Paper Towels'], address: '789 Clean Blvd' },
-];
+// Start with empty arrays - no sample data
+const initialInventory: InventoryItem[] = [];
+const initialSuppliers: Supplier[] = [];
 
 export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
