@@ -35,6 +35,9 @@ export const Dashboard: React.FC = () => {
     item.status === 'Low Stock' || item.status === 'Out of Stock'
   ).length;
 
+  console.log('Dashboard notification sidebar state:', isNotificationSidebarOpen);
+  console.log('Notification count:', notificationCount);
+
   return (
     <div className="space-y-6 animate-fade-in relative">
       {/* Header with Notification Toggle positioned on the right */}
@@ -42,7 +45,10 @@ export const Dashboard: React.FC = () => {
         <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
         <div className="flex justify-end">
           <NotificationToggle 
-            onClick={() => setIsNotificationSidebarOpen(true)}
+            onClick={() => {
+              console.log('Notification toggle clicked, opening sidebar');
+              setIsNotificationSidebarOpen(true);
+            }}
             notificationCount={notificationCount}
           />
         </div>
@@ -83,7 +89,10 @@ export const Dashboard: React.FC = () => {
       {/* Notification Sidebar */}
       <NotificationSidebar 
         isOpen={isNotificationSidebarOpen}
-        onClose={() => setIsNotificationSidebarOpen(false)}
+        onClose={() => {
+          console.log('Notification sidebar closing');
+          setIsNotificationSidebarOpen(false);
+        }}
       />
     </div>
   );

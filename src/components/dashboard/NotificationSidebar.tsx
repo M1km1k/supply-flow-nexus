@@ -13,6 +13,8 @@ export const NotificationSidebar: React.FC<NotificationSidebarProps> = ({
   isOpen,
   onClose
 }) => {
+  console.log('NotificationSidebar render - isOpen:', isOpen);
+
   return (
     <>
       {/* Overlay */}
