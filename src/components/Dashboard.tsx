@@ -214,20 +214,26 @@ export const Dashboard: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentTransactions.map((transaction, index) => (
-              <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors animate-slide-right" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{transaction.itemName}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{transaction.type} • {new Date(transaction.date).toLocaleDateString()}</p>
+            {recentTransactions.map((transaction, index) => {
+              // Get unit from inventory item or use default
+              const inventoryItem = inventory.find(item => item.id === transaction.itemId);
+              const unit = inventoryItem?.unit || 'units';
+              
+              return (
+                <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors animate-slide-right" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">{transaction.itemName}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{transaction.type} • {new Date(transaction.date).toLocaleDateString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-gray-900 dark:text-white">{transaction.quantity} {unit}</p>
+                    <p className={`text-sm ${transaction.type === "inbound" ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {transaction.type === "inbound" ? '+' : '-'}{transaction.quantity}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900 dark:text-white">{transaction.quantity} {transaction.unitOfMeasure}</p>
-                  <p className={`text-sm ${transaction.type === "inbound" ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {transaction.type === "inbound" ? '+' : '-'}{transaction.quantity}
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Package } from 'lucide-react';
@@ -13,7 +12,7 @@ type DeliveryEvent = {
 
 export const CalendarWidget: React.FC = () => {
   const [currentDate] = useState(new Date());
-  const { transactions, suppliers } = useSupply();
+  const { transactions, suppliers, inventory } = useSupply();
   const [deliveries, setDeliveries] = useState<DeliveryEvent[]>([]);
   
   useEffect(() => {
@@ -28,15 +27,19 @@ export const CalendarWidget: React.FC = () => {
       const deliveryDate = new Date();
       deliveryDate.setDate(deliveryDate.getDate() + (index - 1)); // -1, 0, +1 days
       
+      // Get unit from inventory item or use default
+      const inventoryItem = inventory.find(item => item.id === t.itemId);
+      const unit = inventoryItem?.unit || 'units';
+      
       return {
         date: deliveryDate,
-        details: `${t.itemName} (${t.quantity} ${t.unitOfMeasure})`,
+        details: `${t.itemName} (${t.quantity} ${unit})`,
         status: index === 1 ? 'in-progress' : index === 0 ? 'completed' : 'pending'
       } as DeliveryEvent;
     });
     
     setDeliveries(upcomingDeliveries);
-  }, [transactions]);
+  }, [transactions, inventory]);
   
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
