@@ -70,6 +70,14 @@ export const ModularDashboard: React.FC = () => {
         isAdmin={isAdmin}
       />
 
+      {/* Dashboard Widgets */}
+      <DashboardWidgets
+        visibleWidgets={visibleWidgets}
+        selectedCategory={selectedCategory}
+        userRole={user?.role || ''}
+        onToggleWidget={toggleWidget}
+      />
+
       {/* Charts Section - Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <InventoryFlowChart />
@@ -81,14 +89,6 @@ export const ModularDashboard: React.FC = () => {
         <CategoryPerformanceChart />
         <SupplierPerformanceChart />
       </div>
-
-      {/* Dashboard Widgets */}
-      <DashboardWidgets
-        visibleWidgets={visibleWidgets}
-        selectedCategory={selectedCategory}
-        userRole={user?.role || ''}
-        onToggleWidget={toggleWidget}
-      />
 
       {/* System Status Footer */}
       <SystemStatusFooter />
