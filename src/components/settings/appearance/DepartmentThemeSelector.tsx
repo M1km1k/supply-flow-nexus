@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,6 +14,14 @@ interface DepartmentTheme {
 }
 
 const departmentThemes: DepartmentTheme[] = [
+  {
+    id: 'default',
+    name: 'Default Theme',
+    department: 'Standard System Theme',
+    primaryColor: '#6366F1', // Indigo
+    secondaryColor: '#8B5CF6', // Purple
+    preview: 'bg-gradient-to-r from-indigo-500 to-purple-500'
+  },
   {
     id: 'ccs',
     name: 'CCS Theme',
