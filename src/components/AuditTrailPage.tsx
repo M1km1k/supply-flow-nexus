@@ -116,6 +116,19 @@ export const AuditTrailPage: React.FC = () => {
     return null;
   };
 
+  // Custom wave-animated bar component
+  const WaveAnimatedBar = (props: any) => {
+    return (
+      <Bar 
+        {...props}
+        className="animate-wave-rise hover:opacity-80 transition-opacity duration-300"
+        style={{
+          animation: `wave-rise 2s ease-out ${props.animationDelay || 0}s both, wave-pulse 3s ease-in-out infinite ${props.animationDelay || 0}s`
+        }}
+      />
+    );
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
@@ -152,9 +165,9 @@ export const AuditTrailPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Enhanced Analytics Dashboard with hover animations */}
+      {/* Enhanced Analytics Dashboard with wave animations */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Enhanced Action Type Distribution */}
+        {/* Enhanced Action Type Distribution with Wave Animation */}
         <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg animate-slide-left hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
           <CardHeader>
             <CardTitle className="text-xl font-semibold text-gray-800 dark:text-white flex items-center group-hover:text-blue-600 transition-colors duration-300">
@@ -179,9 +192,9 @@ export const AuditTrailPage: React.FC = () => {
                   dataKey="count" 
                   fill="url(#actionGradient)" 
                   radius={[4, 4, 0, 0]}
-                  className="hover:opacity-80 transition-opacity duration-300"
+                  className="wave-bar"
                   animationBegin={0}
-                  animationDuration={1500}
+                  animationDuration={2000}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -233,7 +246,7 @@ export const AuditTrailPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Enhanced User Activity with staggered bar animations */}
+        {/* Enhanced User Activity with Wave Animations */}
         <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg animate-slide-up hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
           <CardHeader>
             <CardTitle className="text-xl font-semibold text-gray-800 dark:text-white flex items-center group-hover:text-purple-600 transition-colors duration-300">
@@ -258,9 +271,9 @@ export const AuditTrailPage: React.FC = () => {
                   dataKey="count" 
                   fill="url(#userGradient)" 
                   radius={[0, 4, 4, 0]}
+                  className="wave-bar-horizontal"
                   animationBegin={300}
-                  animationDuration={1800}
-                  className="hover:opacity-80 transition-opacity duration-300"
+                  animationDuration={2500}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -316,7 +329,7 @@ export const AuditTrailPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Enhanced Top Modified Items with progressive bar animations */}
+      {/* Enhanced Top Modified Items with Wave Animations */}
       <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg animate-fade-in hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] group">
         <CardHeader>
           <CardTitle className="text-xl font-semibold text-gray-800 dark:text-white flex items-center group-hover:text-orange-600 transition-colors duration-300">
@@ -355,9 +368,9 @@ export const AuditTrailPage: React.FC = () => {
                 dataKey="count" 
                 fill="url(#itemGradient)" 
                 radius={[4, 4, 0, 0]}
+                className="wave-bar-staggered"
                 animationBegin={500}
-                animationDuration={2500}
-                className="hover:opacity-80 transition-opacity duration-300"
+                animationDuration={3000}
               />
             </BarChart>
           </ResponsiveContainer>

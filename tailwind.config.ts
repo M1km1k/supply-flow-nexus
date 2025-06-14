@@ -208,6 +208,44 @@ const config: Config = {
           "20%, 40%, 60%, 80%": {
             transform: "translateX(2px)"
           }
+        },
+        "wave-rise": {
+          "0%": {
+            transform: "scaleY(0)",
+            transformOrigin: "bottom"
+          },
+          "50%": {
+            transform: "scaleY(1.1)",
+            transformOrigin: "bottom"
+          },
+          "100%": {
+            transform: "scaleY(1)",
+            transformOrigin: "bottom"
+          }
+        },
+        "wave-pulse": {
+          "0%, 100%": {
+            transform: "scaleY(1)",
+            opacity: "1"
+          },
+          "50%": {
+            transform: "scaleY(1.05)",
+            opacity: "0.8"
+          }
+        },
+        "wave-horizontal": {
+          "0%": {
+            transform: "scaleX(0)",
+            transformOrigin: "left"
+          },
+          "50%": {
+            transform: "scaleX(1.05)",
+            transformOrigin: "left"
+          },
+          "100%": {
+            transform: "scaleX(1)",
+            transformOrigin: "left"
+          }
         }
       },
       animation: {
@@ -225,7 +263,10 @@ const config: Config = {
         "glow": "glow 2s ease-in-out infinite alternate",
         "bounce-in": "bounce-in 0.6s ease-out",
         "wiggle": "wiggle 1s ease-in-out infinite",
-        "shake": "shake 0.5s ease-in-out"
+        "shake": "shake 0.5s ease-in-out",
+        "wave-rise": "wave-rise 2s ease-out",
+        "wave-pulse": "wave-pulse 3s ease-in-out infinite",
+        "wave-horizontal": "wave-horizontal 2s ease-out"
       },
     },
   },

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -99,5 +100,86 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Custom wave animations for bar charts */
+@layer components {
+  .wave-bar rect {
+    animation: wave-rise 2s ease-out both, wave-pulse 4s ease-in-out infinite 2s;
+    transform-origin: bottom;
+  }
+
+  .wave-bar rect:nth-child(1) { animation-delay: 0s, 2s; }
+  .wave-bar rect:nth-child(2) { animation-delay: 0.2s, 2.2s; }
+  .wave-bar rect:nth-child(3) { animation-delay: 0.4s, 2.4s; }
+  .wave-bar rect:nth-child(4) { animation-delay: 0.6s, 2.6s; }
+  .wave-bar rect:nth-child(5) { animation-delay: 0.8s, 2.8s; }
+  .wave-bar rect:nth-child(6) { animation-delay: 1s, 3s; }
+
+  .wave-bar-horizontal rect {
+    animation: wave-horizontal 2.5s ease-out both, wave-pulse 4s ease-in-out infinite 2.5s;
+    transform-origin: left;
+  }
+
+  .wave-bar-horizontal rect:nth-child(1) { animation-delay: 0s, 2.5s; }
+  .wave-bar-horizontal rect:nth-child(2) { animation-delay: 0.3s, 2.8s; }
+  .wave-bar-horizontal rect:nth-child(3) { animation-delay: 0.6s, 3.1s; }
+  .wave-bar-horizontal rect:nth-child(4) { animation-delay: 0.9s, 3.4s; }
+  .wave-bar-horizontal rect:nth-child(5) { animation-delay: 1.2s, 3.7s; }
+
+  .wave-bar-staggered rect {
+    animation: wave-rise 3s ease-out both, wave-pulse 5s ease-in-out infinite 3s;
+    transform-origin: bottom;
+  }
+
+  .wave-bar-staggered rect:nth-child(1) { animation-delay: 0s, 3s; }
+  .wave-bar-staggered rect:nth-child(2) { animation-delay: 0.2s, 3.2s; }
+  .wave-bar-staggered rect:nth-child(3) { animation-delay: 0.4s, 3.4s; }
+  .wave-bar-staggered rect:nth-child(4) { animation-delay: 0.6s, 3.6s; }
+  .wave-bar-staggered rect:nth-child(5) { animation-delay: 0.8s, 3.8s; }
+  .wave-bar-staggered rect:nth-child(6) { animation-delay: 1s, 4s; }
+  .wave-bar-staggered rect:nth-child(7) { animation-delay: 1.2s, 4.2s; }
+  .wave-bar-staggered rect:nth-child(8) { animation-delay: 1.4s, 4.4s; }
+
+  @keyframes wave-rise {
+    0% {
+      transform: scaleY(0);
+      opacity: 0.7;
+    }
+    50% {
+      transform: scaleY(1.1);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes wave-pulse {
+    0%, 100% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scaleY(1.05);
+      opacity: 0.85;
+    }
+  }
+
+  @keyframes wave-horizontal {
+    0% {
+      transform: scaleX(0);
+      opacity: 0.7;
+    }
+    50% {
+      transform: scaleX(1.05);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scaleX(1);
+      opacity: 1;
+    }
   }
 }
