@@ -11,7 +11,6 @@ import { CategoryPerformanceChart } from '@/components/dashboard/CategoryPerform
 import { WeeklyTransactionChart } from '@/components/dashboard/WeeklyTransactionChart';
 import { SupplierPerformanceChart } from '@/components/dashboard/SupplierPerformanceChart';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
-import { NotificationToggle } from '@/components/dashboard/NotificationToggle';
 import { ModernNotificationSidebar } from '@/components/notifications/ModernNotificationSidebar';
 
 export const Dashboard: React.FC = () => {
@@ -30,23 +29,10 @@ export const Dashboard: React.FC = () => {
     }));
   };
 
-  // Calculate notification count (low stock items)
-  const notificationCount = inventory.filter(item => 
-    item.status === 'Low Stock' || item.status === 'Out of Stock'
-  ).length;
-
   return (
     <div className="space-y-6 animate-fade-in relative">
-      {/* Header with Notification Toggle positioned on the right */}
-      <div className="flex justify-between items-center">
-        <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
-        <div className="flex justify-end">
-          <NotificationToggle 
-            onClick={() => setIsNotificationSidebarOpen(true)}
-            notificationCount={notificationCount}
-          />
-        </div>
-      </div>
+      {/* Header without Notification Toggle */}
+      <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
 
       <StatsGrid inventory={inventory} suppliers={suppliers} />
 
