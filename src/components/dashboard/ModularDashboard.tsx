@@ -7,6 +7,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DashboardWidgets } from './DashboardWidgets';
 import { DashboardStats } from './DashboardStats';
 import { SystemStatusFooter } from './SystemStatusFooter';
+import { InventoryFlowChart } from './InventoryFlowChart';
+import { StockDistributionChart } from './StockDistributionChart';
+import { CategoryPerformanceChart } from './CategoryPerformanceChart';
+import { SupplierPerformanceChart } from './SupplierPerformanceChart';
 
 export const ModularDashboard: React.FC = () => {
   const { inventory, suppliers, transactions } = useSupply();
@@ -65,6 +69,18 @@ export const ModularDashboard: React.FC = () => {
         hasPermission={hasPermission}
         isAdmin={isAdmin}
       />
+
+      {/* Charts Section - Row 1 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <InventoryFlowChart />
+        <StockDistributionChart />
+      </div>
+
+      {/* Charts Section - Row 2 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CategoryPerformanceChart />
+        <SupplierPerformanceChart />
+      </div>
 
       {/* Dashboard Widgets */}
       <DashboardWidgets
