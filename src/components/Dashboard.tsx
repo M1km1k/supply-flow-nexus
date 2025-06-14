@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useSupply } from '@/contexts/SupplyContext';
 import { CalendarWidget } from '@/components/CalendarWidget';
-import { NotificationPanel } from '@/components/NotificationPanel';
 import { MiniChatbot } from '@/components/MiniChatbot';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { StatsGrid } from '@/components/dashboard/StatsGrid';
@@ -12,14 +11,16 @@ import { CategoryPerformanceChart } from '@/components/dashboard/CategoryPerform
 import { WeeklyTransactionChart } from '@/components/dashboard/WeeklyTransactionChart';
 import { SupplierPerformanceChart } from '@/components/dashboard/SupplierPerformanceChart';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
+import { NotificationSidebar } from '@/components/dashboard/NotificationSidebar';
+import { NotificationToggle } from '@/components/dashboard/NotificationToggle';
 
 export const Dashboard: React.FC = () => {
   const { inventory, suppliers, transactions } = useSupply();
   const [widgetVisibility, setWidgetVisibility] = useState({
-    notifications: true,
     chatbot: true,
     calendar: true
   });
+  const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
 
   const toggleWidget = (widget: keyof typeof widgetVisibility) => {
     setWidgetVisibility(prev => ({
@@ -28,9 +29,21 @@ export const Dashboard: React.FC = () => {
     }));
   };
 
+  // Calculate notification count (low stock items)
+  const notificationCount = inventory.filter(item => 
+    item.status === 'Low Stock' || item.status === 'Out of Stock'
+  ).length;
+
   return (
-    <div className="space-y-6 animate-fade-in">
-      <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
+    <div className="space-y-6 animate-fade-in relative">
+      {/* Header with Notification Toggle */}
+      <div className="flex justify-between items-center">
+        <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
+        <NotificationToggle 
+          onClick={() => setIsNotificationSidebarOpen(true)}
+          notificationCount={notificationCount}
+        />
+      </div>
 
       <StatsGrid inventory={inventory} suppliers={suppliers} />
 
@@ -49,25 +62,26 @@ export const Dashboard: React.FC = () => {
       <SupplierPerformanceChart />
 
       {/* Widgets Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {widgetVisibility.notifications && (
-          <div className="animate-slide-up">
-            <NotificationPanel />
-          </div>
-        )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {widgetVisibility.chatbot && (
-          <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+          <div className="animate-slide-up">
             <MiniChatbot />
           </div>
         )}
         {widgetVisibility.calendar && (
-          <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
             <CalendarWidget />
           </div>
         )}
       </div>
 
       <RecentTransactions transactions={transactions} inventory={inventory} />
+
+      {/* Notification Sidebar */}
+      <NotificationSidebar 
+        isOpen={isNotificationSidebarOpen}
+        onClose={() => setIsNotificationSidebarOpen(false)}
+      />
     </div>
   );
 };

@@ -11,6 +11,8 @@ import { InventoryFlowChart } from './InventoryFlowChart';
 import { StockDistributionChart } from './StockDistributionChart';
 import { CategoryPerformanceChart } from './CategoryPerformanceChart';
 import { SupplierPerformanceChart } from './SupplierPerformanceChart';
+import { NotificationSidebar } from './NotificationSidebar';
+import { NotificationToggle } from './NotificationToggle';
 
 export const ModularDashboard: React.FC = () => {
   const { inventory, suppliers, transactions } = useSupply();
@@ -19,6 +21,7 @@ export const ModularDashboard: React.FC = () => {
     isStaff() ? [] : ['predictive-analytics']
   );
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
 
   const toggleWidget = (widgetId: string) => {
     setVisibleWidgets(prev => 
@@ -28,9 +31,14 @@ export const ModularDashboard: React.FC = () => {
     );
   };
 
+  // Calculate notification count (low stock items)
+  const notificationCount = inventory.filter(item => 
+    item.status === 'Low Stock' || item.status === 'Out of Stock'
+  ).length;
+
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header with User Info */}
+    <div className="space-y-6 animate-fade-in relative">
+      {/* Header with User Info and Notification Toggle */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white animate-slide-right">
@@ -51,9 +59,14 @@ export const ModularDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Widget Controls - Hidden for staff */}
-        {!isStaff() && (
-          <div className="flex space-x-2">
+        <div className="flex items-center space-x-4">
+          <NotificationToggle 
+            onClick={() => setIsNotificationSidebarOpen(true)}
+            notificationCount={notificationCount}
+          />
+          
+          {/* Widget Controls - Hidden for staff */}
+          {!isStaff() && (
             <div className="flex space-x-1">
               {['all', 'analytics', 'operations', 'management', 'security'].map((category) => (
                 <Button
@@ -67,8 +80,8 @@ export const ModularDashboard: React.FC = () => {
                 </Button>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Enhanced Stats Grid */}
@@ -119,6 +132,12 @@ export const ModularDashboard: React.FC = () => {
 
       {/* System Status Footer */}
       <SystemStatusFooter />
+
+      {/* Notification Sidebar */}
+      <NotificationSidebar 
+        isOpen={isNotificationSidebarOpen}
+        onClose={() => setIsNotificationSidebarOpen(false)}
+      />
     </div>
   );
 };
