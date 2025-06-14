@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -14,7 +13,8 @@ export const AppearanceCard: React.FC = () => {
   const [fontSize, setFontSize] = useState([16]);
   const [systemPreferences, setSystemPreferences] = useState({
     fontFamily: 'inter',
-    animationStyle: 'smooth'
+    animationStyle: 'smooth',
+    backgroundAnimation: 'gradient'
   });
 
   // Auto-apply font family changes
@@ -113,6 +113,17 @@ export const AppearanceCard: React.FC = () => {
     applyAnimationStyle(systemPreferences.animationStyle);
   }, [systemPreferences.animationStyle]);
 
+  // Auto-apply background animation changes
+  useEffect(() => {
+    // Store background preference in localStorage
+    localStorage.setItem('background-animation', systemPreferences.backgroundAnimation);
+    
+    // Dispatch custom event to notify background change
+    window.dispatchEvent(new CustomEvent('backgroundAnimationChange', {
+      detail: { style: systemPreferences.backgroundAnimation }
+    }));
+  }, [systemPreferences.backgroundAnimation]);
+
   const handleFontSizeChange = (value: number[]) => {
     setFontSize(value);
     applyFontSizeChanges(value[0], toast);
@@ -131,6 +142,14 @@ export const AppearanceCard: React.FC = () => {
     toast({ 
       title: "Animation Updated", 
       description: `Animation style changed to ${value.charAt(0).toUpperCase() + value.slice(1)}` 
+    });
+  };
+
+  const handleBackgroundAnimationChange = (value: string) => {
+    setSystemPreferences(prev => ({ ...prev, backgroundAnimation: value }));
+    toast({ 
+      title: "Background Updated", 
+      description: `Background animation changed to ${value.charAt(0).toUpperCase() + value.slice(1)}` 
     });
   };
 
@@ -157,6 +176,29 @@ export const AppearanceCard: React.FC = () => {
               <SelectItem value="system">System</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="space-y-3">
+          <Label>Background Animation (Auto-applied)</Label>
+          <Select 
+            value={systemPreferences.backgroundAnimation} 
+            onValueChange={handleBackgroundAnimationChange}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="gradient">Gradient Orbs</SelectItem>
+              <SelectItem value="particles">Connected Particles</SelectItem>
+              <SelectItem value="floating">Floating Particles</SelectItem>
+              <SelectItem value="geometric">Geometric Shapes</SelectItem>
+              <SelectItem value="waves">Wave Pattern</SelectItem>
+              <SelectItem value="none">None</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-gray-500">
+            Changes are applied instantly across the entire application
+          </p>
         </div>
 
         <div className="space-y-3">

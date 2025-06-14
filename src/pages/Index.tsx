@@ -13,15 +13,16 @@ import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SupplyContextProvider } from "@/contexts/SupplyContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { BackgroundManager } from "@/components/BackgroundManager";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Shield, User } from "lucide-react";
 
 const AppContent = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const [backgroundStyle, setBackgroundStyle] = useState('gradient');
   
   // Register service worker for offline functionality
   useEffect(() => {
@@ -37,11 +38,28 @@ const AppContent = () => {
       });
     }
   }, []);
+
+  // Listen for background animation changes
+  useEffect(() => {
+    const handleBackgroundChange = (event: CustomEvent) => {
+      setBackgroundStyle(event.detail.style);
+    };
+
+    // Load initial background preference
+    const savedBackground = localStorage.getItem('background-animation') || 'gradient';
+    setBackgroundStyle(savedBackground);
+
+    window.addEventListener('backgroundAnimationChange', handleBackgroundChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('backgroundAnimationChange', handleBackgroundChange as EventListener);
+    };
+  }, []);
   
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="min-h-screen flex w-full relative overflow-hidden">
-        <AnimatedBackground />
+        <BackgroundManager style={backgroundStyle} />
         <AppSidebar />
         <div className="flex-1 flex flex-col relative z-10 min-w-0">
           <header className="h-14 sm:h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center justify-between px-3 sm:px-4 lg:px-6 shadow-lg animate-slide-down flex-shrink-0">
