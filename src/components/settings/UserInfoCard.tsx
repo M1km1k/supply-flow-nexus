@@ -36,8 +36,26 @@ export const UserInfoCard: React.FC = () => {
     }
   });
 
+  // Load saved user info on component mount
   useEffect(() => {
-    if (user) {
+    const savedUserInfo = localStorage.getItem('user-info');
+    if (savedUserInfo) {
+      try {
+        const parsed = JSON.parse(savedUserInfo);
+        setUserInfo(prev => ({
+          ...prev,
+          ...parsed,
+          // Ensure user info from auth context takes precedence for core fields
+          fullName: user?.name || parsed.fullName || prev.fullName,
+          email: user?.email || parsed.email || prev.email,
+          role: user?.role || parsed.role || prev.role,
+          department: user?.department || parsed.department || prev.department
+        }));
+      } catch (error) {
+        console.error('Error loading user info:', error);
+      }
+    } else if (user) {
+      // Set initial values from auth context
       setUserInfo(prev => ({
         ...prev,
         fullName: user.name,
@@ -48,11 +66,48 @@ export const UserInfoCard: React.FC = () => {
     }
   }, [user]);
 
+  // Auto-save user info when it changes (debounced)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem('user-info', JSON.stringify(userInfo));
+      
+      // Dispatch events for system-wide updates
+      window.dispatchEvent(new CustomEvent('userInfoChange', { 
+        detail: userInfo 
+      }));
+      
+      // Update notification preferences globally
+      window.dispatchEvent(new CustomEvent('notificationPreferencesChange', { 
+        detail: userInfo.notifications 
+      }));
+      
+      // Update system preferences globally
+      window.dispatchEvent(new CustomEvent('systemPreferencesChange', { 
+        detail: userInfo.preferences 
+      }));
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [userInfo]);
+
   const handleSaveUserInfo = () => {
-    // In a real application, this would update the user profile in the backend
+    // Force save immediately
+    localStorage.setItem('user-info', JSON.stringify(userInfo));
+    
+    // Dispatch all relevant events
+    window.dispatchEvent(new CustomEvent('userInfoChange', { 
+      detail: userInfo 
+    }));
+    window.dispatchEvent(new CustomEvent('notificationPreferencesChange', { 
+      detail: userInfo.notifications 
+    }));
+    window.dispatchEvent(new CustomEvent('systemPreferencesChange', { 
+      detail: userInfo.preferences 
+    }));
+    
     toast({ 
       title: "Success", 
-      description: "User information and preferences updated successfully!" 
+      description: "User information and preferences saved successfully!" 
     });
   };
 
