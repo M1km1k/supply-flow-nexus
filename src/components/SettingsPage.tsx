@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { Slider } from '@/components/ui/slider';
 import { useTheme } from '@/components/ThemeProvider';
 import { useSupply } from '@/contexts/SupplyContext';
 import { useToast } from '@/hooks/use-toast';
-import { Download, FileText, Mail, Play, BookOpen, Settings as SettingsIcon } from 'lucide-react';
+import { Download, FileText, Mail, Play, BookOpen, Settings as SettingsIcon, FileDown } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
@@ -29,6 +28,8 @@ export const SettingsPage: React.FC = () => {
     animationStyle: 'smooth',
     fontFamily: 'inter'
   });
+
+  const [reportFormat, setReportFormat] = useState<'txt' | 'csv'>('txt');
   
   const [fontSize, setFontSize] = useState([16]);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -86,6 +87,14 @@ export const SettingsPage: React.FC = () => {
   };
 
   const handleGenerateReport = () => {
+    if (reportFormat === 'txt') {
+      generateTextReport();
+    } else {
+      generateCsvReport();
+    }
+  };
+  
+  const generateTextReport = () => {
     const reportContent = `
 InventOMatic System Report
 Generated: ${new Date().toLocaleString()}
@@ -101,7 +110,7 @@ Active Suppliers: ${suppliers.length}
 
 === TRANSACTION SUMMARY ===
 Total Transactions: ${transactions.length}
-Recent Activity: ${transactions.slice(0, 5).map(t => `${t.type} - ${t.itemName} (${t.quantity} ${t.unit})`).join('\n')}
+Recent Activity: ${transactions.slice(0, 5).map(t => `${t.type} - ${t.itemName} (${t.quantity} ${t.unitOfMeasure})`).join('\n')}
     `.trim();
 
     const blob = new Blob([reportContent], { type: 'text/plain' });
@@ -113,7 +122,35 @@ Recent Activity: ${transactions.slice(0, 5).map(t => `${t.type} - ${t.itemName} 
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast({ title: "Success", description: "Report generated and downloaded!" });
+    toast({ title: "Success", description: "Text report generated and downloaded!" });
+  };
+  
+  const generateCsvReport = () => {
+    // Generate CSV for Inventory
+    const inventoryHeaders = ["Item Name", "Quantity", "Unit", "Supplier", "Status"];
+    const inventoryRows = inventory.map(item => [
+      item.name,
+      item.quantity.toString(),
+      item.unit,
+      item.supplier,
+      item.status
+    ]);
+    
+    const csvInventory = [
+      inventoryHeaders.join(','),
+      ...inventoryRows.map(row => row.join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvInventory], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `inventomatic-inventory-report-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast({ title: "Success", description: "CSV report generated and downloaded!" });
   };
 
   const handleContactSupport = () => {
@@ -420,14 +457,39 @@ ${userInfo.fullName}
                   <Download className="w-4 h-4 mr-2" />
                   Export System Data
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start hover:scale-105 transition-transform"
-                  onClick={handleGenerateReport}
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Generate Report
-                </Button>
+                
+                <div className="space-y-2">
+                  <Label>Report Format</Label>
+                  <div className="flex space-x-2 mb-2">
+                    <Button 
+                      variant={reportFormat === 'txt' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setReportFormat('txt')}
+                      className="flex-1"
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Text File (.txt)
+                    </Button>
+                    <Button 
+                      variant={reportFormat === 'csv' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setReportFormat('csv')}
+                      className="flex-1"
+                    >
+                      <FileDown className="w-4 h-4 mr-2" />
+                      CSV File (.csv)
+                    </Button>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start hover:scale-105 transition-transform"
+                    onClick={handleGenerateReport}
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Generate {reportFormat.toUpperCase()} Report
+                  </Button>
+                </div>
+                
                 <Button 
                   variant="outline" 
                   className="w-full justify-start hover:scale-105 transition-transform"

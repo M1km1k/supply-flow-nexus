@@ -50,12 +50,10 @@ export function AppSidebar() {
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-600 rounded-xl flex items-center justify-center shadow-lg animate-spin-slow">
               <Check className="w-7 h-7 text-white animate-pulse" />
             </div>
-            {state !== "collapsed" && (
-              <div className="animate-slide-right">
-                <h2 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">InventOMatic</h2>
-                <p className="text-xs text-gray-600 dark:text-gray-400 animate-fade-in">Inventory Management</p>
-              </div>
-            )}
+            <div className="animate-slide-right">
+              <h2 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">InventOMatic</h2>
+              <p className="text-xs text-gray-600 dark:text-gray-400 animate-fade-in">Inventory Management</p>
+            </div>
           </div>
         </div>
 
@@ -81,15 +79,13 @@ export function AppSidebar() {
                           ? "animate-bounce" 
                           : "group-hover:scale-110 group-hover:rotate-12"
                       }`} />
-                      {state !== "collapsed" && (
-                        <span className={`font-medium transition-all duration-300 ${
-                          isActive(item.url) 
-                            ? "animate-pulse" 
-                            : "group-hover:translate-x-1"
-                        }`}>
-                          {item.title}
-                        </span>
-                      )}
+                      <span className={`font-medium transition-all duration-300 ${
+                        isActive(item.url) 
+                          ? "animate-pulse" 
+                          : "group-hover:translate-x-1"
+                      }`}>
+                        {item.title}
+                      </span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -101,15 +97,13 @@ export function AppSidebar() {
         {/* Footer */}
         <div className="mt-auto p-6 animate-fade-in">
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 text-center">
-            {state !== "collapsed" && (
-              <div className="animate-slide-up">
-                <h3 className="font-semibold text-sm text-gray-800 dark:text-white mb-2">System Status</h3>
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-gray-600 dark:text-gray-300">All Systems Operational</span>
-                </div>
+            <div className="animate-slide-up">
+              <h3 className="font-semibold text-sm text-gray-800 dark:text-white mb-2">System Status</h3>
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-gray-600 dark:text-gray-300">All Systems Operational</span>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </SidebarContent>

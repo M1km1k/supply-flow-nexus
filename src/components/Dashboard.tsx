@@ -221,9 +221,9 @@ export const Dashboard: React.FC = () => {
                   <p className="text-sm text-gray-600 dark:text-gray-400">{transaction.type} • {new Date(transaction.date).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900 dark:text-white">{transaction.quantity} {transaction.unit}</p>
-                  <p className={`text-sm ${transaction.type === 'Inbound' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {transaction.type === 'Inbound' ? '+' : '-'}{transaction.quantity}
+                  <p className="font-semibold text-gray-900 dark:text-white">{transaction.quantity} {transaction.unitOfMeasure}</p>
+                  <p className={`text-sm ${transaction.type === "inbound" ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {transaction.type === "inbound" ? '+' : '-'}{transaction.quantity}
                   </p>
                 </div>
               </div>
