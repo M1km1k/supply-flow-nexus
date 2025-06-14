@@ -77,7 +77,7 @@ export const AppearanceCard: React.FC = () => {
   };
 
   return (
-    <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
+    <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-none rounded-none h-full">
       <CardHeader>
         <CardTitle className="text-xl font-semibold text-gray-800 dark:text-white">
           Appearance Settings
