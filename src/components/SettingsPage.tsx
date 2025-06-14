@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { BookOpen, FileText } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { BookOpen, FileText, Settings, Palette, User, HelpCircle } from 'lucide-react';
 import { UserInfoCard } from './settings/UserInfoCard';
 import { AppearanceCard } from './settings/AppearanceCard';
 import { SystemPreferencesCard } from './settings/SystemPreferencesCard';
@@ -14,51 +16,114 @@ export const SettingsPage: React.FC = () => {
   const [showManual, setShowManual] = useState(false);
 
   return (
-    <div className="space-y-0 animate-fade-in">
-      <div className="flex justify-between items-center animate-slide-down mb-4">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white hover:scale-105 transition-transform duration-300 hover:text-blue-600">
-          Settings
-        </h1>
-        <div className="flex space-x-2">
-          <Button 
-            onClick={() => setShowManual(!showManual)} 
-            variant="outline" 
-            className="animate-bounce-in hover:scale-110 transition-all duration-200 hover:bg-green-50 hover:border-green-300 hover:text-green-600"
-          >
-            <FileText className="w-4 h-4 mr-2 hover:rotate-12 transition-transform duration-200" />
-            {showManual ? 'Hide Manual' : 'Show Manual'}
-          </Button>
-          <Button 
-            onClick={() => setShowTutorial(!showTutorial)} 
-            variant="outline" 
-            className="animate-bounce-in hover:scale-110 transition-all duration-200 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600"
-          >
-            <BookOpen className="w-4 h-4 mr-2 hover:rotate-12 transition-transform duration-200" />
-            {showTutorial ? 'Hide Tutorial' : 'Show Tutorial'}
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-6 space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+              <Settings className="w-8 h-8 text-blue-600" />
+              Settings
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Manage your account, preferences, and system configuration
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              onClick={() => setShowManual(!showManual)} 
+              variant="outline" 
+              size="sm"
+              className="hover:bg-green-50 hover:border-green-300 hover:text-green-600 transition-all duration-200"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              {showManual ? 'Hide Manual' : 'User Manual'}
+            </Button>
+            <Button 
+              onClick={() => setShowTutorial(!showTutorial)} 
+              variant="outline" 
+              size="sm"
+              className="hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200"
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              {showTutorial ? 'Hide Tutorial' : 'Tutorial Guide'}
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="animate-slide-up mb-0">
-        <ManualGuide isVisible={showManual} />
-      </div>
+        <Separator />
 
-      <div className="animate-slide-up mb-0">
-        <TutorialGuide isVisible={showTutorial} />
-      </div>
+        {/* Guides Section */}
+        {(showManual || showTutorial) && (
+          <div className="space-y-4">
+            <ManualGuide isVisible={showManual} />
+            <TutorialGuide isVisible={showTutorial} />
+            <Separator />
+          </div>
+        )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-        <div className="animate-slide-right hover:scale-105 transition-transform duration-300 border-r border-b border-gray-200 dark:border-gray-700">
-          <UserInfoCard />
-        </div>
-        <div className="animate-slide-left hover:scale-105 transition-transform duration-300 border-b border-gray-200 dark:border-gray-700" style={{ animationDelay: '0.1s' }}>
-          <AppearanceCard />
-        </div>
-        <div className="animate-slide-right hover:scale-105 transition-transform duration-300 border-r border-gray-200 dark:border-gray-700" style={{ animationDelay: '0.2s' }}>
-          <SystemPreferencesCard />
-        </div>
-        <div className="animate-slide-left hover:scale-105 transition-transform duration-300" style={{ animationDelay: '0.3s' }}>
-          <HelpInfoCard />
+        {/* Settings Cards Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {/* User Information Section */}
+          <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+                <User className="w-5 h-5 text-blue-600" />
+                User Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="px-6 pb-6">
+                <UserInfoCard />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Appearance Settings Section */}
+          <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+                <Palette className="w-5 h-5 text-purple-600" />
+                Appearance & Display
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="px-6 pb-6">
+                <AppearanceCard />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* System Preferences Section */}
+          <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+                <Settings className="w-5 h-5 text-green-600" />
+                System Preferences
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="px-6 pb-6">
+                <SystemPreferencesCard />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Help & Support Section */}
+          <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-orange-600" />
+                Help & Support
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="px-6 pb-6">
+                <HelpInfoCard />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
