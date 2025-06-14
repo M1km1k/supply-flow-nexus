@@ -11,8 +11,8 @@ import { CategoryPerformanceChart } from '@/components/dashboard/CategoryPerform
 import { WeeklyTransactionChart } from '@/components/dashboard/WeeklyTransactionChart';
 import { SupplierPerformanceChart } from '@/components/dashboard/SupplierPerformanceChart';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
-import { NotificationSidebar } from '@/components/dashboard/NotificationSidebar';
 import { NotificationToggle } from '@/components/dashboard/NotificationToggle';
+import { ModernNotificationSidebar } from '@/components/notifications/ModernNotificationSidebar';
 
 export const Dashboard: React.FC = () => {
   const { inventory, suppliers, transactions } = useSupply();
@@ -35,9 +35,6 @@ export const Dashboard: React.FC = () => {
     item.status === 'Low Stock' || item.status === 'Out of Stock'
   ).length;
 
-  console.log('Dashboard notification sidebar state:', isNotificationSidebarOpen);
-  console.log('Notification count:', notificationCount);
-
   return (
     <div className="space-y-6 animate-fade-in relative">
       {/* Header with Notification Toggle positioned on the right */}
@@ -45,10 +42,7 @@ export const Dashboard: React.FC = () => {
         <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
         <div className="flex justify-end">
           <NotificationToggle 
-            onClick={() => {
-              console.log('Notification toggle clicked, opening sidebar');
-              setIsNotificationSidebarOpen(true);
-            }}
+            onClick={() => setIsNotificationSidebarOpen(true)}
             notificationCount={notificationCount}
           />
         </div>
@@ -86,13 +80,10 @@ export const Dashboard: React.FC = () => {
 
       <RecentTransactions transactions={transactions} inventory={inventory} />
 
-      {/* Notification Sidebar */}
-      <NotificationSidebar 
+      {/* Modern Notification Sidebar */}
+      <ModernNotificationSidebar 
         isOpen={isNotificationSidebarOpen}
-        onClose={() => {
-          console.log('Notification sidebar closing');
-          setIsNotificationSidebarOpen(false);
-        }}
+        onClose={() => setIsNotificationSidebarOpen(false)}
       />
     </div>
   );
