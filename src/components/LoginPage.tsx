@@ -201,7 +201,7 @@ export const LoginPage: React.FC = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes gradient-x {
           0%, 100% {
             transform: translateX(-50%) translateY(-50%) rotate(0deg);
@@ -218,8 +218,16 @@ export const LoginPage: React.FC = () => {
         }
         
         .animate-gradient-x {
-          animation: gradient-x 6s ease-in-out infinite;
+          animation: gradient-x 12s ease-in-out infinite;
           background-size: 400% 400%;
+        }
+        
+        .animate-bounce {
+          animation-duration: 4s;
+        }
+        
+        .animate-pulse {
+          animation-duration: 6s;
         }
       `}</style>
     </div>
