@@ -7,6 +7,7 @@ import { FontSizeSlider } from './appearance/FontSizeSlider';
 import { AnimationSpeedSlider } from './appearance/AnimationSpeedSlider';
 import { FontFamilySelector } from './appearance/FontFamilySelector';
 import { AnimationStyleSelector } from './appearance/AnimationStyleSelector';
+import { DepartmentThemeSelector } from './appearance/DepartmentThemeSelector';
 import { applyFontFamily, applyAnimationStyle, applyAnimationSpeed } from './utils/appearanceUtils';
 import { applyFontSizeChanges } from '@/utils/fontSizeUtils';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +19,8 @@ export const AppearanceCard: React.FC = () => {
   const [systemPreferences, setSystemPreferences] = useState({
     fontFamily: 'inter',
     animationStyle: 'smooth',
-    backgroundAnimation: 'gradient'
+    backgroundAnimation: 'gradient',
+    departmentTheme: 'default'
   });
 
   // Load preferences from localStorage on component mount
@@ -26,13 +28,15 @@ export const AppearanceCard: React.FC = () => {
     const savedFontFamily = localStorage.getItem('font-family') || 'inter';
     const savedAnimationStyle = localStorage.getItem('animation-style') || 'smooth';
     const savedBackgroundAnimation = localStorage.getItem('background-animation') || 'gradient';
+    const savedDepartmentTheme = localStorage.getItem('department-theme') || 'default';
     const savedFontSize = parseInt(localStorage.getItem('font-size') || '16');
     const savedAnimationSpeed = parseFloat(localStorage.getItem('animation-speed') || '1');
 
     setSystemPreferences({
       fontFamily: savedFontFamily,
       animationStyle: savedAnimationStyle,
-      backgroundAnimation: savedBackgroundAnimation
+      backgroundAnimation: savedBackgroundAnimation,
+      departmentTheme: savedDepartmentTheme
     });
     setFontSize([savedFontSize]);
     setAnimationSpeed([savedAnimationSpeed]);
@@ -65,6 +69,10 @@ export const AppearanceCard: React.FC = () => {
     setSystemPreferences(prev => ({ ...prev, backgroundAnimation: value }));
   };
 
+  const handleDepartmentThemeChange = (value: string) => {
+    setSystemPreferences(prev => ({ ...prev, departmentTheme: value }));
+  };
+
   return (
     <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
       <CardHeader>
@@ -74,6 +82,11 @@ export const AppearanceCard: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         <ThemeSelector />
+
+        <DepartmentThemeSelector 
+          value={systemPreferences.departmentTheme}
+          onChange={handleDepartmentThemeChange}
+        />
 
         <BackgroundSelector 
           value={systemPreferences.backgroundAnimation}
