@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Shield, User } from 'lucide-react';
+import { Eye, EyeOff, Shield, User, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const LoginPage: React.FC = () => {
@@ -151,7 +151,7 @@ export const LoginPage: React.FC = () => {
                   onClick={() => handleSampleLogin(account)}
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-3">
                         {account.role === 'Admin' ? (
                           <Shield className="w-5 h-5 text-blue-600" />
@@ -167,7 +167,11 @@ export const LoginPage: React.FC = () => {
                         {account.role}
                       </Badge>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">{account.permissions}</p>
+                    <div className="flex items-center space-x-2 text-xs text-gray-500 mb-2">
+                      <Key className="w-3 h-3" />
+                      <span className="font-mono">Password: {account.password}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">{account.permissions}</p>
                   </CardContent>
                 </Card>
               ))}
