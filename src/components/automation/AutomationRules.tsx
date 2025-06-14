@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Zap, Plus, Settings, Bell, Package, Users, Mail, Edit } from 'lucide-react';
+import { Zap, Plus } from 'lucide-react';
 import { useSupply } from '@/contexts/SupplyContext';
 import { useToast } from '@/hooks/use-toast';
 import { AutomationRuleDialog, AutomationRule } from './AutomationRuleDialog';
+import { AutomationStatsOverview } from './AutomationStatsOverview';
+import { AutomationRuleItem } from './AutomationRuleItem';
+import { DeleteRuleDialog } from './DeleteRuleDialog';
 
 const defaultRules: AutomationRule[] = [
   {
@@ -50,6 +51,8 @@ export const AutomationRules: React.FC = () => {
   const [rules, setRules] = useState<AutomationRule[]>(defaultRules);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<AutomationRule | undefined>();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [ruleToDelete, setRuleToDelete] = useState<AutomationRule | null>(null);
   const { inventory, suppliers } = useSupply();
   const { toast } = useToast();
 
@@ -66,6 +69,7 @@ export const AutomationRules: React.FC = () => {
       setRules(prev => prev.map(rule => 
         rule.id === ruleData.id ? ruleData as AutomationRule : rule
       ));
+      toast({ title: "Rule updated", description: "Automation rule updated successfully." });
     } else {
       // Adding new rule
       const newRule: AutomationRule = {
@@ -73,6 +77,7 @@ export const AutomationRules: React.FC = () => {
         id: Math.random().toString(36).substr(2, 9)
       };
       setRules(prev => [...prev, newRule]);
+      toast({ title: "Rule created", description: "New automation rule created successfully." });
     }
     setEditingRule(undefined);
   };
@@ -87,23 +92,20 @@ export const AutomationRules: React.FC = () => {
     setDialogOpen(true);
   };
 
-  const getTriggerIcon = (trigger: string) => {
-    switch (trigger) {
-      case 'low_stock': return <Package className="w-4 h-4" />;
-      case 'out_of_stock': return <Package className="w-4 h-4" />;
-      case 'supplier_delay': return <Users className="w-4 h-4" />;
-      case 'new_item': return <Plus className="w-4 h-4" />;
-      case 'scheduled': return <Settings className="w-4 h-4" />;
-      default: return <Zap className="w-4 h-4" />;
-    }
+  const handleDeleteRule = (rule: AutomationRule) => {
+    setRuleToDelete(rule);
+    setDeleteDialogOpen(true);
   };
 
-  const getActionIcon = (action: string) => {
-    switch (action) {
-      case 'email_alert': return <Mail className="w-3 h-3" />;
-      case 'reorder': return <Package className="w-3 h-3" />;
-      case 'notify_admin': return <Bell className="w-3 h-3" />;
-      default: return <Settings className="w-3 h-3" />;
+  const confirmDeleteRule = () => {
+    if (ruleToDelete) {
+      setRules(prev => prev.filter(rule => rule.id !== ruleToDelete.id));
+      toast({ 
+        title: "Rule deleted", 
+        description: `Automation rule "${ruleToDelete.name}" has been deleted.` 
+      });
+      setRuleToDelete(null);
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -120,46 +122,7 @@ export const AutomationRules: React.FC = () => {
         </Button>
       </div>
 
-      {/* Active Rules Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-700 dark:text-green-300">Active Rules</p>
-                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
-                  {rules.filter(r => r.isActive).length}
-                </p>
-              </div>
-              <Zap className="w-8 h-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-700">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Rules</p>
-                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{rules.length}</p>
-              </div>
-              <Settings className="w-8 h-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-700">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Triggered Today</p>
-                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">3</p>
-              </div>
-              <Bell className="w-8 h-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <AutomationStatsOverview rules={rules} />
 
       {/* Rules List */}
       <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
@@ -168,56 +131,24 @@ export const AutomationRules: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {rules.map((rule, index) => (
-              <div 
-                key={rule.id} 
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 animate-slide-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    {getTriggerIcon(rule.trigger)}
-                    <div>
-                      <h4 className="font-medium text-gray-900 dark:text-white">{rule.name}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Trigger: {rule.trigger.replace('_', ' ').toUpperCase()}
-                        {rule.condition.threshold && ` (threshold: ${rule.condition.threshold})`}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-1">
-                    {rule.actions.map((action, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">
-                        <span className="flex items-center space-x-1">
-                          {getActionIcon(action.type)}
-                          <span>{action.type.replace('_', ' ')}</span>
-                        </span>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  {rule.lastTriggered && (
-                    <p className="text-xs text-gray-500">
-                      Last: {new Date(rule.lastTriggered).toLocaleDateString()}
-                    </p>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEditRule(rule)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Switch
-                    checked={rule.isActive}
-                    onCheckedChange={() => toggleRule(rule.id)}
-                  />
-                </div>
+            {rules.length > 0 ? (
+              rules.map((rule, index) => (
+                <AutomationRuleItem
+                  key={rule.id}
+                  rule={rule}
+                  index={index}
+                  onToggle={toggleRule}
+                  onEdit={handleEditRule}
+                  onDelete={handleDeleteRule}
+                />
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Zap className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No automation rules configured yet.</p>
+                <p className="text-sm">Click "Add Rule" to create your first automation rule.</p>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -227,6 +158,13 @@ export const AutomationRules: React.FC = () => {
         onOpenChange={setDialogOpen}
         rule={editingRule}
         onSave={handleSaveRule}
+      />
+
+      <DeleteRuleDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        rule={ruleToDelete}
+        onConfirm={confirmDeleteRule}
       />
     </div>
   );
