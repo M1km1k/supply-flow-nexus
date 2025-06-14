@@ -55,14 +55,13 @@ export const NotificationDropdown: React.FC = () => {
         });
       }
 
-      // Supplier notifications
-      const inactiveSuppliers = suppliers.filter(supplier => supplier.status === 'Inactive');
-      if (inactiveSuppliers.length > 0) {
+      // Supplier notifications - removed status check since it doesn't exist
+      if (suppliers.length > 0) {
         newNotifications.push({
-          id: 'inactive-suppliers',
-          type: 'warning',
-          title: 'Inactive Suppliers',
-          message: `${inactiveSuppliers.length} suppliers are inactive`,
+          id: 'suppliers-info',
+          type: 'info',
+          title: 'Supplier Status',
+          message: `${suppliers.length} suppliers in system`,
           timestamp: new Date(),
           page: 'suppliers',
           read: false
@@ -151,8 +150,8 @@ export const NotificationDropdown: React.FC = () => {
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-hidden">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-2xl z-[9999] max-h-96 overflow-hidden backdrop-blur-sm">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800">
             <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
             <div className="flex items-center space-x-2">
               {unreadCount > 0 && (
@@ -175,7 +174,7 @@ export const NotificationDropdown: React.FC = () => {
             </div>
           </div>
 
-          <div className="max-h-64 overflow-y-auto">
+          <div className="max-h-64 overflow-y-auto bg-white dark:bg-gray-800">
             {notifications.length === 0 ? (
               <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                 No notifications
