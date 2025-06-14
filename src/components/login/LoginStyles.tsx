@@ -211,69 +211,196 @@ export const LoginStyles: React.FC = () => {
         }
       }
       
+      @keyframes card-float {
+        0%, 100% {
+          transform: translateZ(0px) translateY(0px) rotateX(0deg) rotateY(0deg);
+        }
+        50% {
+          transform: translateZ(15px) translateY(-5px) rotateX(2deg) rotateY(1deg);
+        }
+      }
+      
+      @keyframes card-hover {
+        0%, 100% {
+          transform: translateZ(15px) translateY(-5px) rotateX(2deg) rotateY(1deg);
+        }
+        50% {
+          transform: translateZ(25px) translateY(-10px) rotateX(3deg) rotateY(2deg);
+        }
+      }
+      
+      @keyframes header-slide-in {
+        0% {
+          opacity: 0;
+          transform: translateY(-20px) translateZ(-10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0px) translateZ(0px);
+        }
+      }
+      
+      @keyframes title-glow {
+        0%, 100% {
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        50% {
+          text-shadow: 0 4px 8px rgba(59, 130, 246, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      }
+      
+      @keyframes content-fade-in {
+        0% {
+          opacity: 0;
+          transform: translateZ(-15px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateZ(0px);
+        }
+      }
+      
+      @keyframes field-slide-up {
+        0% {
+          opacity: 0;
+          transform: translateY(20px) translateZ(-10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0px) translateZ(0px);
+        }
+      }
+      
+      @keyframes input-focus {
+        0% {
+          transform: scale(1) translateZ(0px);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        100% {
+          transform: scale(1.02) translateZ(5px);
+          box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+      }
+      
+      @keyframes icon-bounce {
+        0%, 100% {
+          transform: translateY(-50%) scale(1);
+        }
+        50% {
+          transform: translateY(-50%) scale(1.1) translateZ(2px);
+        }
+      }
+      
+      @keyframes button-3d {
+        0%, 100% {
+          transform: translateZ(0px) rotateX(0deg);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        50% {
+          transform: translateZ(8px) rotateX(2deg);
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(59, 130, 246, 0.2);
+        }
+      }
+      
       .animate-gradient-3d {
-        animation: gradient-3d 15s ease-in-out infinite;
+        animation: gradient-3d 20s ease-in-out infinite;
         background-size: 400% 400%;
       }
       
       .animate-cube-float {
-        animation: cube-float 8s ease-in-out infinite;
+        animation: cube-float 12s ease-in-out infinite;
       }
       
       .animate-cube-bounce {
-        animation: cube-bounce 6s ease-in-out infinite;
+        animation: cube-bounce 10s ease-in-out infinite;
       }
       
       .animate-cube-spin {
-        animation: cube-spin 12s linear infinite;
+        animation: cube-spin 18s linear infinite;
       }
       
       .animate-pyramid-float {
-        animation: pyramid-float 10s ease-in-out infinite;
+        animation: pyramid-float 14s ease-in-out infinite;
       }
       
       .animate-pyramid-spin {
-        animation: pyramid-spin 8s linear infinite;
+        animation: pyramid-spin 12s linear infinite;
       }
       
       .animate-diamond-rotate {
-        animation: diamond-rotate 6s linear infinite;
+        animation: diamond-rotate 10s linear infinite;
       }
       
       .animate-diamond-float {
-        animation: diamond-float 7s ease-in-out infinite;
+        animation: diamond-float 11s ease-in-out infinite;
       }
       
       .animate-particle-3d-0 {
-        animation: particle-3d-0 12s ease-in-out infinite;
+        animation: particle-3d-0 16s ease-in-out infinite;
       }
       
       .animate-particle-3d-1 {
-        animation: particle-3d-1 10s ease-in-out infinite;
+        animation: particle-3d-1 14s ease-in-out infinite;
       }
       
       .animate-particle-3d-2 {
-        animation: particle-3d-2 14s ease-in-out infinite;
+        animation: particle-3d-2 18s ease-in-out infinite;
       }
       
       .animate-particle-3d-3 {
-        animation: particle-3d-3 11s ease-in-out infinite;
+        animation: particle-3d-3 15s ease-in-out infinite;
       }
       
       .animate-logo-3d {
-        animation: logo-3d 4s ease-in-out infinite;
+        animation: logo-3d 6s ease-in-out infinite;
       }
       
       .animate-logo-glow {
-        animation: logo-glow 3s ease-in-out infinite;
+        animation: logo-glow 4s ease-in-out infinite;
       }
       
       .animate-text-3d {
-        animation: text-3d 5s ease-in-out infinite;
+        animation: text-3d 8s ease-in-out infinite;
       }
       
       .animate-fade-in-3d {
-        animation: fade-in-3d 2s ease-out;
+        animation: fade-in-3d 3s ease-out;
+      }
+      
+      .animate-card-float {
+        animation: card-float 8s ease-in-out infinite;
+      }
+      
+      .animate-card-hover {
+        animation: card-hover 4s ease-in-out infinite;
+      }
+      
+      .animate-header-slide-in {
+        animation: header-slide-in 1s ease-out;
+      }
+      
+      .animate-title-glow {
+        animation: title-glow 6s ease-in-out infinite;
+      }
+      
+      .animate-content-fade-in {
+        animation: content-fade-in 1.5s ease-out;
+      }
+      
+      .animate-field-slide-up {
+        animation: field-slide-up 0.8s ease-out both;
+      }
+      
+      .animate-input-focus {
+        animation: input-focus 0.3s ease-out both;
+      }
+      
+      .animate-icon-bounce {
+        animation: icon-bounce 0.5s ease-in-out;
+      }
+      
+      .animate-button-3d {
+        animation: button-3d 0.6s ease-in-out;
       }
     `}</style>
   );
