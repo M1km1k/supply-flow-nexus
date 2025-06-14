@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -12,6 +11,7 @@ export const AppearanceCard: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const [fontSize, setFontSize] = useState([16]);
+  const [animationSpeed, setAnimationSpeed] = useState([1]);
   const [systemPreferences, setSystemPreferences] = useState({
     fontFamily: 'inter',
     animationStyle: 'smooth',
@@ -24,6 +24,7 @@ export const AppearanceCard: React.FC = () => {
     const savedAnimationStyle = localStorage.getItem('animation-style') || 'smooth';
     const savedBackgroundAnimation = localStorage.getItem('background-animation') || 'gradient';
     const savedFontSize = parseInt(localStorage.getItem('font-size') || '16');
+    const savedAnimationSpeed = parseFloat(localStorage.getItem('animation-speed') || '1');
 
     setSystemPreferences({
       fontFamily: savedFontFamily,
@@ -31,10 +32,12 @@ export const AppearanceCard: React.FC = () => {
       backgroundAnimation: savedBackgroundAnimation
     });
     setFontSize([savedFontSize]);
+    setAnimationSpeed([savedAnimationSpeed]);
 
     // Apply saved preferences
     applyFontFamily(savedFontFamily);
     applyAnimationStyle(savedAnimationStyle);
+    applyAnimationSpeed(savedAnimationSpeed);
     applyFontSizeChanges(savedFontSize, toast);
   }, []);
 
@@ -53,6 +56,67 @@ export const AppearanceCard: React.FC = () => {
 
     document.documentElement.style.fontFamily = getFontFamily(fontFamily);
     localStorage.setItem('font-family', fontFamily);
+  };
+
+  // Auto-apply animation speed changes
+  const applyAnimationSpeed = (speed: number) => {
+    const root = document.documentElement;
+    
+    // Create or update speed style rules
+    const existingSpeedStyles = document.getElementById('dynamic-speed-styles');
+    if (existingSpeedStyles) {
+      existingSpeedStyles.remove();
+    }
+    
+    const speedStyles = document.createElement('style');
+    speedStyles.id = 'dynamic-speed-styles';
+    
+    // Calculate duration multiplier (inverse of speed)
+    const durationMultiplier = 1 / speed;
+    
+    const cssRules = `
+      * {
+        animation-duration: calc(var(--original-duration, 0.3s) * ${durationMultiplier}) !important;
+        transition-duration: calc(var(--original-transition, 0.2s) * ${durationMultiplier}) !important;
+      }
+      
+      .animate-fade-in {
+        animation-duration: ${0.3 * durationMultiplier}s !important;
+      }
+      
+      .animate-slide-right {
+        animation-duration: ${0.8 * durationMultiplier}s !important;
+      }
+      
+      .animate-bounce {
+        animation-duration: ${1 * durationMultiplier}s !important;
+      }
+      
+      .animate-pulse {
+        animation-duration: ${2 * durationMultiplier}s !important;
+      }
+      
+      canvas {
+        animation-duration: ${1 * durationMultiplier}s !important;
+      }
+      
+      button, .hover\\:scale-105 {
+        transition-duration: ${0.2 * durationMultiplier}s !important;
+      }
+      
+      .accordion-down {
+        animation-duration: ${0.2 * durationMultiplier}s !important;
+      }
+      
+      .accordion-up {
+        animation-duration: ${0.2 * durationMultiplier}s !important;
+      }
+    `;
+    
+    speedStyles.textContent = cssRules;
+    document.head.appendChild(speedStyles);
+    
+    localStorage.setItem('animation-speed', speed.toString());
   };
 
   // Auto-apply animation style changes
@@ -167,6 +231,15 @@ export const AppearanceCard: React.FC = () => {
     applyFontSizeChanges(value[0], toast);
   };
 
+  const handleAnimationSpeedChange = (value: number[]) => {
+    setAnimationSpeed(value);
+    applyAnimationSpeed(value[0]);
+    toast({ 
+      title: "Animation Speed Updated", 
+      description: `Animation speed set to ${value[0]}x` 
+    });
+  };
+
   const handleFontFamilyChange = (value: string) => {
     setSystemPreferences(prev => ({ ...prev, fontFamily: value }));
     applyFontFamily(value);
@@ -253,6 +326,21 @@ export const AppearanceCard: React.FC = () => {
           />
           <p className="text-xs text-gray-500">
             Changing font size will automatically adjust header height, spacing, padding, and all layout elements
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <Label>Animation Speed: {animationSpeed[0]}x (Auto-applied)</Label>
+          <Slider
+            value={animationSpeed}
+            onValueChange={handleAnimationSpeedChange}
+            max={3}
+            min={0.1}
+            step={0.1}
+            className="w-full"
+          />
+          <p className="text-xs text-gray-500">
+            Adjust how fast or slow animations play throughout the application (0.1x = very slow, 3x = very fast)
           </p>
         </div>
 
