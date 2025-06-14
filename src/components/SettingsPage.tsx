@@ -153,6 +153,36 @@ Recent Activity: ${transactions.slice(0, 5).map(t => `${t.type} - ${t.itemName} 
     toast({ title: "Success", description: "CSV report generated and downloaded!" });
   };
 
+  const generateReport = () => {
+    const { transactions, inventory } = useSupply();
+    
+    const reportData = transactions.map(t => {
+      // Get unit from inventory item or use default
+      const inventoryItem = inventory.find(item => item.id === t.itemId);
+      const unit = inventoryItem?.unit || 'units';
+      
+      return `${t.date},${t.type},${t.itemName},${t.quantity} ${unit}`;
+    }).join('\n');
+    
+    const header = 'Date,Type,Item,Quantity\n';
+    const content = header + reportData;
+    
+    const blob = new Blob([content], { 
+      type: reportFormat === 'csv' ? 'text/csv' : 'text/plain' 
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `inventory-report.${reportFormat}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Report Generated",
+      description: `Report exported as ${reportFormat.toUpperCase()} file`,
+    });
+  };
+
   const handleContactSupport = () => {
     const emailBody = encodeURIComponent(`
 Hello InventOMatic Support Team,
@@ -483,7 +513,7 @@ ${userInfo.fullName}
                   <Button 
                     variant="outline" 
                     className="w-full justify-start hover:scale-105 transition-transform"
-                    onClick={handleGenerateReport}
+                    onClick={generateReport}
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     Generate {reportFormat.toUpperCase()} Report

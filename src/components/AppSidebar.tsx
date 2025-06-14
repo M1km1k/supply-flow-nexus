@@ -43,7 +43,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right">
+    <Sidebar className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right min-w-[280px] w-[280px]">
       <SidebarContent>
         <div className="p-6 animate-fade-in">
           <div className="flex items-center space-x-3 mb-8">
@@ -58,34 +58,47 @@ export function AppSidebar() {
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="animate-fade-in text-gray-700 dark:text-gray-300">Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="animate-fade-in text-gray-700 dark:text-gray-300 px-4 mb-2">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item, index) => (
-                <SidebarMenuItem key={item.title} className="animate-slide-right" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <SidebarMenuButton asChild>
+                <SidebarMenuItem key={item.title} className="animate-slide-right px-2" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <SidebarMenuButton asChild className="w-full h-auto p-0">
                     <NavLink
                       to={item.url}
                       className={({ isActive: linkActive }) =>
-                        `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group hover:scale-105 ${
+                        `flex items-center space-x-4 px-4 py-4 mx-2 rounded-xl transition-all duration-300 group hover:scale-105 relative overflow-hidden ${
                           isActive(item.url)
                             ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105"
                             : "text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:text-gray-900 dark:hover:text-gray-100"
                         }`
                       }
                     >
-                      <item.icon className={`w-5 h-5 transition-all duration-300 ${
+                      {/* Animated background effect */}
+                      <div className={`absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isActive(item.url) ? 'opacity-100' : ''}`} />
+                      
+                      {/* Icon with enhanced animations */}
+                      <div className="relative z-10">
+                        <item.icon className={`w-6 h-6 transition-all duration-300 ${
+                          isActive(item.url) 
+                            ? "animate-bounce drop-shadow-lg" 
+                            : "group-hover:scale-125 group-hover:rotate-12 group-hover:drop-shadow-md"
+                        }`} />
+                      </div>
+                      
+                      {/* Text with enhanced animations */}
+                      <span className={`font-medium text-base transition-all duration-300 relative z-10 ${
                         isActive(item.url) 
-                          ? "animate-bounce" 
-                          : "group-hover:scale-110 group-hover:rotate-12"
-                      }`} />
-                      <span className={`font-medium transition-all duration-300 ${
-                        isActive(item.url) 
-                          ? "animate-pulse" 
-                          : "group-hover:translate-x-1"
+                          ? "animate-pulse drop-shadow-lg" 
+                          : "group-hover:translate-x-2 group-hover:font-semibold"
                       }`}>
                         {item.title}
                       </span>
+                      
+                      {/* Animated indicator */}
+                      {isActive(item.url) && (
+                        <div className="absolute right-2 w-2 h-2 bg-white rounded-full animate-ping" />
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -94,14 +107,32 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Footer */}
+        {/* Enhanced Footer */}
         <div className="mt-auto p-6 animate-fade-in">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 text-center">
-            <div className="animate-slide-up">
-              <h3 className="font-semibold text-sm text-gray-800 dark:text-white mb-2">System Status</h3>
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-600 dark:text-gray-300">All Systems Operational</span>
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 text-center relative overflow-hidden">
+            {/* Animated background pattern */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-100/20 to-purple-100/20 animate-pulse" />
+            
+            <div className="animate-slide-up relative z-10">
+              <h3 className="font-semibold text-sm text-gray-800 dark:text-white mb-3">System Status</h3>
+              <div className="flex items-center justify-center space-x-3">
+                <div className="relative">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                  <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75" />
+                </div>
+                <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">All Systems Operational</span>
+              </div>
+              
+              {/* Additional status indicators */}
+              <div className="mt-3 flex justify-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Online</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Synced</span>
+                </div>
               </div>
             </div>
           </div>
