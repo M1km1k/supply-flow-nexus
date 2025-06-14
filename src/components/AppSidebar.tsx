@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -85,14 +84,20 @@ export function AppSidebar() {
   return (
     <Sidebar 
       ref={sidebarRef}
-      className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right fixed z-[9999] relative"
+      className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right h-screen"
       style={{
         width: `${sidebarWidth}px`,
         minWidth: `${sidebarWidth}px`,
-        transition: isResizing ? 'none' : 'width 0.2s ease-out'
+        maxWidth: `${sidebarWidth}px`,
+        transition: isResizing ? 'none' : 'width 0.2s ease-out',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        zIndex: 50,
+        height: '100vh'
       }}
     >
-      <SidebarContent>
+      <SidebarContent className="h-full">
         <div className="p-6 animate-fade-in">
           <div className="flex items-center space-x-3 mb-8">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group">
@@ -159,10 +164,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Enhanced Footer */}
         <div className="mt-auto p-6 animate-fade-in">
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 text-center relative overflow-hidden">
-            {/* Animated background pattern */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-100/20 to-purple-100/20 animate-pulse" />
             
             <div className="animate-slide-up relative z-10">
@@ -175,7 +178,6 @@ export function AppSidebar() {
                 <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">All Systems Operational</span>
               </div>
               
-              {/* Additional status indicators */}
               <div className="mt-3 flex justify-center space-x-4">
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
@@ -191,7 +193,6 @@ export function AppSidebar() {
         </div>
       </SidebarContent>
 
-      {/* Resize Handle */}
       <div
         className="absolute top-0 right-0 w-1 h-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 dark:hover:bg-blue-400 cursor-col-resize transition-colors duration-200 opacity-0 hover:opacity-100 group"
         onMouseDown={handleResizeStart}
