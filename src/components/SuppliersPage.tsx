@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useSupply } from '@/contexts/SupplyContext';
 import { AddSupplierDialog } from '@/components/AddSupplierDialog';
 import { SupplierDetailsDialog } from '@/components/SupplierDetailsDialog';
@@ -47,89 +48,146 @@ export const SuppliersPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Supplier Management</h1>
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setShowAddDialog(true)} className="bg-blue-600 hover:bg-blue-700">
+    <div className="w-full max-w-none space-y-6 px-2 sm:px-4 lg:px-6">
+      {/* Header Section */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Supplier Management
+          </h1>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+          <Button 
+            onClick={() => setShowAddDialog(true)} 
+            className="bg-blue-600 hover:bg-blue-700 text-sm sm:text-base px-4 py-2"
+          >
             Add New Supplier
           </Button>
-          <Button onClick={exportToCSV} variant="outline">
+          <Button 
+            onClick={exportToCSV} 
+            variant="outline"
+            className="text-sm sm:text-base px-4 py-2"
+          >
             Export CSV
           </Button>
-          <Button onClick={() => window.print()} variant="outline">
+          <Button 
+            onClick={() => window.print()} 
+            variant="outline"
+            className="text-sm sm:text-base px-4 py-2"
+          >
             Print
           </Button>
         </div>
       </div>
 
-      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-            <CardTitle className="text-xl font-semibold text-gray-800 dark:text-white">
+      {/* Main Content Card */}
+      <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">
               Suppliers ({filteredSuppliers.length})
             </CardTitle>
-            <Input
-              placeholder="Search suppliers, contacts, or products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:w-80"
-            />
+            <div className="w-full sm:w-80">
+              <Input
+                placeholder="Search suppliers, contacts, or products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full"
+              />
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
+        
+        <CardContent className="px-0 sm:px-6">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Contact</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Email</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Lead Time</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Products</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[150px]">
+                    Name
+                  </TableHead>
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[120px]">
+                    Contact
+                  </TableHead>
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[180px]">
+                    Email
+                  </TableHead>
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[100px]">
+                    Lead Time
+                  </TableHead>
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[150px]">
+                    Products
+                  </TableHead>
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[120px]">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filteredSuppliers.map((supplier) => (
-                  <tr key={supplier.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td className="py-4 px-4">
-                      <p className="font-medium text-gray-900 dark:text-white">{supplier.name}</p>
-                      {supplier.address && <p className="text-sm text-gray-500">{supplier.address}</p>}
-                    </td>
-                    <td className="py-4 px-4 text-gray-700 dark:text-gray-300">{supplier.contact}</td>
-                    <td className="py-4 px-4 text-gray-700 dark:text-gray-300">{supplier.email}</td>
-                    <td className="py-4 px-4 text-gray-700 dark:text-gray-300">{supplier.leadTime} days</td>
-                    <td className="py-4 px-4">
+                  <TableRow 
+                    key={supplier.id} 
+                    className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <TableCell className="py-4">
+                      <div className="space-y-1">
+                        <p className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">
+                          {supplier.name}
+                        </p>
+                        {supplier.address && (
+                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                            {supplier.address}
+                          </p>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-4 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                      {supplier.contact}
+                    </TableCell>
+                    <TableCell className="py-4 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                      {supplier.email}
+                    </TableCell>
+                    <TableCell className="py-4 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                      {supplier.leadTime} days
+                    </TableCell>
+                    <TableCell className="py-4">
                       <div className="flex flex-wrap gap-1">
                         {supplier.productsSupplied.slice(0, 2).map((product, index) => (
-                          <span key={index} className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full">
+                          <span 
+                            key={index} 
+                            className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full"
+                          >
                             {product}
                           </span>
                         ))}
                         {supplier.productsSupplied.length > 2 && (
-                          <span className="text-xs text-gray-500">+{supplier.productsSupplied.length - 2} more</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            +{supplier.productsSupplied.length - 2} more
+                          </span>
                         )}
                       </div>
-                    </td>
-                    <td className="py-4 px-4">
+                    </TableCell>
+                    <TableCell className="py-4">
                       <Button
                         onClick={() => setSelectedSupplier(supplier.id)}
                         variant="outline"
                         size="sm"
+                        className="text-xs sm:text-sm"
                       >
                         View Details
                       </Button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
           
           {filteredSuppliers.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No suppliers found matching your search.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
+                No suppliers found matching your search.
+              </p>
             </div>
           )}
         </CardContent>
