@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Package, Users, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
+import { convertUSDtoPHP, formatPHP } from '@/lib/utils';
 
 interface DashboardStatsProps {
   inventory: any[];
@@ -19,7 +20,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
   const stats = [
     {
       title: 'Total Inventory Value',
-      value: '$125,430',
+      value: formatPHP(convertUSDtoPHP(125430)),
       icon: Package,
       color: 'from-blue-500 to-blue-600',
       bgColor: 'from-blue-50 to-blue-100',
