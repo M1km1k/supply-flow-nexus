@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -37,9 +36,9 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [positionX, setPositionX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragStartX, setDragStartX] = useState(0);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => {
@@ -50,27 +49,19 @@ export function AppSidebar() {
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.drag-handle')) {
       setIsDragging(true);
-      setDragStart({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y
-      });
+      setDragStartX(e.clientX - positionX);
       e.preventDefault();
     }
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging) {
-      const newX = e.clientX - dragStart.x;
-      const newY = e.clientY - dragStart.y;
+      const newX = e.clientX - dragStartX;
       
-      // Constrain to viewport
+      // Constrain to viewport width only
       const maxX = window.innerWidth - 280;
-      const maxY = window.innerHeight - 200;
       
-      setPosition({
-        x: Math.max(0, Math.min(newX, maxX)),
-        y: Math.max(0, Math.min(newY, maxY))
-      });
+      setPositionX(Math.max(0, Math.min(newX, maxX)));
     }
   };
 
@@ -88,14 +79,14 @@ export function AppSidebar() {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragStart, position]);
+  }, [isDragging, dragStartX, positionX]);
 
   return (
     <Sidebar 
       ref={sidebarRef}
       className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right min-w-[280px] w-[280px] fixed z-[9999] cursor-move"
       style={{
-        transform: `translate(${position.x}px, ${position.y}px)`,
+        transform: `translateX(${positionX}px)`,
         transition: isDragging ? 'none' : 'transform 0.2s ease-out'
       }}
       onMouseDown={handleMouseDown}
