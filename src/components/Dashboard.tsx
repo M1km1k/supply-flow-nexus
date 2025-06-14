@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useSupply } from '@/contexts/SupplyContext';
-import { Package, Users, TrendingUp, AlertTriangle, Eye, EyeOff, Calendar, BarChart3, DollarSign, ShoppingCart, Clock, CheckCircle } from 'lucide-react';
+import { Package, Users, TrendingUp, AlertTriangle, Eye, EyeOff, Calendar, BarChart3, DollarSign, ShoppingCart, Clock, CheckCircle, MessageSquare } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, Legend, ComposedChart } from 'recharts';
 import { CalendarWidget } from '@/components/CalendarWidget';
 import { NotificationPanel } from '@/components/NotificationPanel';
@@ -315,7 +315,7 @@ export const Dashboard: React.FC = () => {
         </div>
         <div className="flex space-x-2">
           <Button
-            variant="outline"
+            variant={widgetVisibility.notifications ? "default" : "outline"}
             size="sm"
             onClick={() => toggleWidget('notifications')}
             className="animate-bounce-in"
@@ -324,21 +324,23 @@ export const Dashboard: React.FC = () => {
             Notifications
           </Button>
           <Button
-            variant="outline"
+            variant={widgetVisibility.chatbot ? "default" : "outline"}
             size="sm"
             onClick={() => toggleWidget('chatbot')}
             className="animate-bounce-in"
           >
             {widgetVisibility.chatbot ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+            <MessageSquare className="w-4 h-4 mr-2" />
             Assistant
           </Button>
           <Button
-            variant="outline"
+            variant={widgetVisibility.calendar ? "default" : "outline"}
             size="sm"
             onClick={() => toggleWidget('calendar')}
             className="animate-bounce-in"
           >
             {widgetVisibility.calendar ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+            <Calendar className="w-4 h-4 mr-2" />
             Calendar
           </Button>
         </div>
