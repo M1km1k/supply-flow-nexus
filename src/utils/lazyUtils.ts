@@ -1,5 +1,5 @@
 
-import { ComponentType, lazy } from 'react';
+import React, { ComponentType, lazy } from 'react';
 
 export const createLazyComponent = <T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
