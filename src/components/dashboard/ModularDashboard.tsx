@@ -7,10 +7,12 @@ import { useSupply } from '@/contexts/SupplyContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { PredictiveAnalytics } from '@/components/analytics/PredictiveAnalytics';
 import { AutomationRules } from '@/components/automation/AutomationRules';
+import { CalendarWidget } from '@/components/CalendarWidget';
+import { MiniChatbot } from '@/components/MiniChatbot';
 import { 
   Package, Users, TrendingUp, AlertTriangle, Settings, 
   Eye, EyeOff, Grid, BarChart3, Zap, Shield, Calendar,
-  FileText, Bell, Activity
+  FileText, Bell, Activity, MessageSquare
 } from 'lucide-react';
 
 interface DashboardWidget {
@@ -41,6 +43,22 @@ const availableWidgets: DashboardWidget[] = [
     size: 'large',
     category: 'operations',
     requiredRole: ['admin', 'manager']
+  },
+  {
+    id: 'delivery-calendar',
+    title: 'Delivery Calendar',
+    component: CalendarWidget,
+    icon: Calendar,
+    size: 'medium',
+    category: 'operations'
+  },
+  {
+    id: 'system-chatbot',
+    title: 'System Assistant',
+    component: MiniChatbot,
+    icon: MessageSquare,
+    size: 'medium',
+    category: 'management'
   }
 ];
 
@@ -192,13 +210,20 @@ export const ModularDashboard: React.FC = () => {
       </Card>
 
       {/* Dynamic Widget Rendering */}
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredWidgets
           .filter(widget => visibleWidgets.includes(widget.id))
           .map((widget) => {
             const WidgetComponent = widget.component;
             return (
-              <div key={widget.id} className="animate-slide-up">
+              <div 
+                key={widget.id} 
+                className={`animate-slide-up ${
+                  widget.size === 'large' ? 'lg:col-span-2 xl:col-span-3' : 
+                  widget.size === 'medium' ? 'lg:col-span-1' : 
+                  'lg:col-span-1'
+                }`}
+              >
                 <WidgetComponent />
               </div>
             );
