@@ -17,6 +17,7 @@ import { NotificationToggle } from '@/components/dashboard/NotificationToggle';
 export const Dashboard: React.FC = () => {
   const { inventory, suppliers, transactions } = useSupply();
   const [widgetVisibility, setWidgetVisibility] = useState({
+    notifications: true,
     chatbot: true,
     calendar: true
   });
@@ -36,13 +37,15 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in relative">
-      {/* Header with Notification Toggle */}
+      {/* Header with Notification Toggle positioned on the right */}
       <div className="flex justify-between items-center">
         <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
-        <NotificationToggle 
-          onClick={() => setIsNotificationSidebarOpen(true)}
-          notificationCount={notificationCount}
-        />
+        <div className="flex justify-end">
+          <NotificationToggle 
+            onClick={() => setIsNotificationSidebarOpen(true)}
+            notificationCount={notificationCount}
+          />
+        </div>
       </div>
 
       <StatsGrid inventory={inventory} suppliers={suppliers} />
