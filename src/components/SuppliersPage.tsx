@@ -48,32 +48,32 @@ export const SuppliersPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-none space-y-6 px-2 sm:px-4 lg:px-6">
+    <div className="w-full max-w-none space-y-4 sm:space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
             Supplier Management
           </h1>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-2 lg:gap-3">
           <Button 
             onClick={() => setShowAddDialog(true)} 
-            className="bg-blue-600 hover:bg-blue-700 text-sm sm:text-base px-4 py-2"
+            className="bg-blue-600 hover:bg-blue-700 text-sm px-3 py-2 sm:px-4"
           >
             Add New Supplier
           </Button>
           <Button 
             onClick={exportToCSV} 
             variant="outline"
-            className="text-sm sm:text-base px-4 py-2"
+            className="text-sm px-3 py-2 sm:px-4"
           >
             Export CSV
           </Button>
           <Button 
             onClick={() => window.print()} 
             variant="outline"
-            className="text-sm sm:text-base px-4 py-2"
+            className="text-sm px-3 py-2 sm:px-4"
           >
             Print
           </Button>
@@ -82,12 +82,12 @@ export const SuppliersPage: React.FC = () => {
 
       {/* Main Content Card */}
       <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <CardHeader className="p-4 sm:p-6 pb-3 sm:pb-4">
+          <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">
               Suppliers ({filteredSuppliers.length})
             </CardTitle>
-            <div className="w-full sm:w-80">
+            <div className="w-full sm:w-72 lg:w-80">
               <Input
                 placeholder="Search suppliers, contacts, or products..."
                 value={searchTerm}
@@ -98,27 +98,27 @@ export const SuppliersPage: React.FC = () => {
           </div>
         </CardHeader>
         
-        <CardContent className="px-0 sm:px-6">
+        <CardContent className="p-0 sm:px-4 lg:px-6 pb-4 sm:pb-6">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-gray-200 dark:border-gray-700">
-                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[150px]">
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[140px] px-2 sm:px-4">
                     Name
                   </TableHead>
-                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[120px]">
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[110px] px-2 sm:px-4">
                     Contact
                   </TableHead>
-                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[180px]">
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[160px] px-2 sm:px-4">
                     Email
                   </TableHead>
-                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[100px]">
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[90px] px-2 sm:px-4">
                     Lead Time
                   </TableHead>
-                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[150px]">
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[140px] px-2 sm:px-4">
                     Products
                   </TableHead>
-                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[120px]">
+                  <TableHead className="text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[100px] px-2 sm:px-4">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -129,28 +129,28 @@ export const SuppliersPage: React.FC = () => {
                     key={supplier.id} 
                     className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
-                    <TableCell className="py-4">
+                    <TableCell className="py-3 sm:py-4 px-2 sm:px-4">
                       <div className="space-y-1">
-                        <p className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">
+                        <p className="font-medium text-gray-900 dark:text-white text-sm">
                           {supplier.name}
                         </p>
                         {supplier.address && (
-                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
                             {supplier.address}
                           </p>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                    <TableCell className="py-3 sm:py-4 px-2 sm:px-4 text-sm text-gray-700 dark:text-gray-300">
                       {supplier.contact}
                     </TableCell>
-                    <TableCell className="py-4 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                    <TableCell className="py-3 sm:py-4 px-2 sm:px-4 text-sm text-gray-700 dark:text-gray-300">
                       {supplier.email}
                     </TableCell>
-                    <TableCell className="py-4 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                    <TableCell className="py-3 sm:py-4 px-2 sm:px-4 text-sm text-gray-700 dark:text-gray-300">
                       {supplier.leadTime} days
                     </TableCell>
-                    <TableCell className="py-4">
+                    <TableCell className="py-3 sm:py-4 px-2 sm:px-4">
                       <div className="flex flex-wrap gap-1">
                         {supplier.productsSupplied.slice(0, 2).map((product, index) => (
                           <span 
@@ -167,12 +167,12 @@ export const SuppliersPage: React.FC = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="py-4">
+                    <TableCell className="py-3 sm:py-4 px-2 sm:px-4">
                       <Button
                         onClick={() => setSelectedSupplier(supplier.id)}
                         variant="outline"
                         size="sm"
-                        className="text-xs sm:text-sm"
+                        className="text-xs px-2 py-1 sm:px-3 sm:py-2"
                       >
                         View Details
                       </Button>
@@ -184,8 +184,8 @@ export const SuppliersPage: React.FC = () => {
           </div>
           
           {filteredSuppliers.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
+            <div className="text-center py-8 sm:py-12">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 No suppliers found matching your search.
               </p>
             </div>

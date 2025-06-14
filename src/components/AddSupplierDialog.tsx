@@ -58,85 +58,101 @@ export const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({ open, onOp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Add New Supplier</DialogTitle>
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="pb-3">
+          <DialogTitle className="text-lg font-semibold">Add New Supplier</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Supplier Name *</Label>
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-medium">Supplier Name *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               placeholder="Enter supplier name"
+              className="w-full"
               required
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="contact">Contact Number *</Label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="contact" className="text-sm font-medium">Contact Number *</Label>
               <Input
                 id="contact"
                 value={formData.contact}
                 onChange={(e) => setFormData(prev => ({ ...prev, contact: e.target.value }))}
                 placeholder="+1-555-0123"
+                className="w-full"
                 required
               />
             </div>
-            <div>
-              <Label htmlFor="leadTime">Lead Time (days) *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="leadTime" className="text-sm font-medium">Lead Time (days) *</Label>
               <Input
                 id="leadTime"
                 type="number"
                 value={formData.leadTime}
                 onChange={(e) => setFormData(prev => ({ ...prev, leadTime: e.target.value }))}
                 placeholder="7"
+                className="w-full"
                 required
               />
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="email">Email Address *</Label>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
               placeholder="contact@supplier.com"
+              className="w-full"
               required
             />
           </div>
 
-          <div>
-            <Label htmlFor="productsSupplied">Products Supplied</Label>
+          <div className="space-y-2">
+            <Label htmlFor="productsSupplied" className="text-sm font-medium">Products Supplied</Label>
             <Input
               id="productsSupplied"
               value={formData.productsSupplied}
               onChange={(e) => setFormData(prev => ({ ...prev, productsSupplied: e.target.value }))}
               placeholder="Product 1, Product 2, Product 3"
+              className="w-full"
             />
             <p className="text-xs text-gray-500 mt-1">Separate multiple products with commas</p>
           </div>
 
-          <div>
-            <Label htmlFor="address">Address</Label>
+          <div className="space-y-2">
+            <Label htmlFor="address" className="text-sm font-medium">Address</Label>
             <Textarea
               id="address"
               value={formData.address}
               onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
               placeholder="Enter supplier address"
+              className="w-full resize-none"
               rows={3}
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="w-full sm:w-auto"
+            >
               Cancel
             </Button>
-            <Button type="submit">Add Supplier</Button>
+            <Button 
+              type="submit"
+              className="w-full sm:w-auto"
+            >
+              Add Supplier
+            </Button>
           </div>
         </form>
       </DialogContent>
