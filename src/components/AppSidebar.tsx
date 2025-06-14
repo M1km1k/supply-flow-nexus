@@ -147,24 +147,6 @@ export function AppSidebar() {
           </div>
         )}
       </SidebarContent>
-
-      {/* Custom styles for additional animations */}
-      <style jsx>{`
-        @keyframes slideInLeft {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        
-        .animate-slide-in-left {
-          animation: slideInLeft 0.5s ease-out;
-        }
-      `}</style>
     </Sidebar>
   );
 }
