@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,7 +16,7 @@ const departmentThemes: DepartmentTheme[] = [
   {
     id: 'ccs',
     name: 'CCS Theme',
-    department: 'Computer and Computing Sciences',
+    department: 'College of Computer Studies',
     primaryColor: '#8B5CF6', // Purple
     secondaryColor: '#FCD34D', // Yellow
     preview: 'bg-gradient-to-r from-purple-500 to-yellow-400'
@@ -25,34 +24,10 @@ const departmentThemes: DepartmentTheme[] = [
   {
     id: 'cba',
     name: 'CBA Theme',
-    department: 'College of Business Administration',
+    department: 'College of Business Accountancy',
     primaryColor: '#10B981', // Green
     secondaryColor: '#FFFFFF', // White
     preview: 'bg-gradient-to-r from-green-500 to-white'
-  },
-  {
-    id: 'coe',
-    name: 'COE Theme',
-    department: 'College of Engineering',
-    primaryColor: '#EF4444', // Red
-    secondaryColor: '#1F2937', // Dark Gray
-    preview: 'bg-gradient-to-r from-red-500 to-gray-800'
-  },
-  {
-    id: 'cas',
-    name: 'CAS Theme',
-    department: 'College of Arts and Sciences',
-    primaryColor: '#3B82F6', // Blue
-    secondaryColor: '#F97316', // Orange
-    preview: 'bg-gradient-to-r from-blue-500 to-orange-500'
-  },
-  {
-    id: 'default',
-    name: 'Default Theme',
-    department: 'Standard System Theme',
-    primaryColor: '#6366F1', // Indigo
-    secondaryColor: '#8B5CF6', // Purple
-    preview: 'bg-gradient-to-r from-indigo-500 to-purple-500'
   }
 ];
 
@@ -65,7 +40,7 @@ export const DepartmentThemeSelector: React.FC<DepartmentThemeSelectorProps> = (
   value,
   onChange
 }) => {
-  const selectedTheme = departmentThemes.find(theme => theme.id === value) || departmentThemes[4];
+  const selectedTheme = departmentThemes.find(theme => theme.id === value) || departmentThemes[0];
 
   const applyDepartmentTheme = (themeId: string) => {
     const theme = departmentThemes.find(t => t.id === themeId);

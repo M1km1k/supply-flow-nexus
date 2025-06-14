@@ -20,7 +20,7 @@ export const AppearanceCard: React.FC = () => {
     fontFamily: 'inter',
     animationStyle: 'smooth',
     backgroundAnimation: 'gradient',
-    departmentTheme: 'default'
+    departmentTheme: 'ccs'
   });
 
   // Load preferences from localStorage on component mount
@@ -28,15 +28,18 @@ export const AppearanceCard: React.FC = () => {
     const savedFontFamily = localStorage.getItem('font-family') || 'inter';
     const savedAnimationStyle = localStorage.getItem('animation-style') || 'smooth';
     const savedBackgroundAnimation = localStorage.getItem('background-animation') || 'gradient';
-    const savedDepartmentTheme = localStorage.getItem('department-theme') || 'default';
+    const savedDepartmentTheme = localStorage.getItem('department-theme') || 'ccs';
     const savedFontSize = parseInt(localStorage.getItem('font-size') || '16');
     const savedAnimationSpeed = parseFloat(localStorage.getItem('animation-speed') || '1');
+
+    // Validate department theme (only allow ccs or cba now)
+    const validDepartmentTheme = ['ccs', 'cba'].includes(savedDepartmentTheme) ? savedDepartmentTheme : 'ccs';
 
     setSystemPreferences({
       fontFamily: savedFontFamily,
       animationStyle: savedAnimationStyle,
       backgroundAnimation: savedBackgroundAnimation,
-      departmentTheme: savedDepartmentTheme
+      departmentTheme: validDepartmentTheme
     });
     setFontSize([savedFontSize]);
     setAnimationSpeed([savedAnimationSpeed]);
