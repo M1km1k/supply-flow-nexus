@@ -40,7 +40,7 @@ const Index = () => {
           <div className="min-h-screen flex w-full relative overflow-hidden">
             <AnimatedBackground />
             <AppSidebar />
-            <main className="flex-1 flex flex-col relative z-10 min-w-0">
+            <div className="flex-1 flex flex-col relative z-10 min-w-0">
               <header className="h-14 sm:h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center justify-between px-3 sm:px-4 lg:px-6 shadow-lg animate-slide-down flex-shrink-0">
                 <div className="flex items-center min-w-0 flex-1 gap-2 sm:gap-3">
                   <SidebarTrigger className="hover:scale-110 transition-transform duration-200 text-gray-700 dark:text-gray-200 flex-shrink-0" />
@@ -49,19 +49,21 @@ const Index = () => {
                   </h1>
                 </div>
               </header>
-              <div className="flex-1 p-3 sm:p-4 lg:p-6 overflow-auto">
-                <div className="w-full max-w-none mx-auto">
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/inventory" element={<InventoryPage />} />
-                    <Route path="/suppliers" element={<SuppliersPage />} />
-                    <Route path="/transactions" element={<TransactionsPage />} />
-                    <Route path="/audit" element={<AuditTrailPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                  </Routes>
+              <main className="flex-1 overflow-auto">
+                <div className="h-full p-3 sm:p-4 lg:p-6">
+                  <div className="w-full max-w-none mx-auto h-full">
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/inventory" element={<InventoryPage />} />
+                      <Route path="/suppliers" element={<SuppliersPage />} />
+                      <Route path="/transactions" element={<TransactionsPage />} />
+                      <Route path="/audit" element={<AuditTrailPage />} />
+                      <Route path="/settings" element={<SettingsPage />} />
+                    </Routes>
+                  </div>
                 </div>
-              </div>
-            </main>
+              </main>
+            </div>
           </div>
         </SidebarProvider>
       </SupplyContextProvider>

@@ -11,7 +11,7 @@ export const applyFontSizeChanges = (newFontSize: number, toast: any) => {
   // Auto-adjust all spacing and sizing based on font size
   root.style.setProperty('--font-scale', scaleFactor.toString());
   root.style.setProperty('--header-height', `${3.5 * scaleFactor}rem`);
-  root.style.setProperty('--sidebar-width', `${16 * scaleFactor}rem`);
+  root.style.setProperty('--sidebar-width', `${17.5 * scaleFactor}rem`);
   root.style.setProperty('--spacing-xs', `${0.25 * scaleFactor}rem`);
   root.style.setProperty('--spacing-sm', `${0.5 * scaleFactor}rem`);
   root.style.setProperty('--spacing-md', `${1 * scaleFactor}rem`);
@@ -22,34 +22,48 @@ export const applyFontSizeChanges = (newFontSize: number, toast: any) => {
   root.style.setProperty('--border-radius-md', `${0.375 * scaleFactor}rem`);
   root.style.setProperty('--border-radius-lg', `${0.5 * scaleFactor}rem`);
   
-  // Apply scaling to header specifically
-  const header = document.querySelector('header');
-  if (header) {
-    header.style.height = `${3.5 * scaleFactor}rem`;
-    header.style.padding = `0 ${1 * scaleFactor}rem`;
-  }
-  
-  // Apply scaling to main content
-  const main = document.querySelector('main');
-  if (main) {
-    const mainContent = main.querySelector('div.flex-1');
-    if (mainContent) {
-      (mainContent as HTMLElement).style.padding = `${1 * scaleFactor}rem`;
-    }
-  }
-  
-  // Apply scaling to cards and components
-  const cards = document.querySelectorAll('[class*="bg-white"], [class*="bg-gray"]');
-  cards.forEach(card => {
-    (card as HTMLElement).style.padding = `${1.5 * scaleFactor}rem`;
-    (card as HTMLElement).style.gap = `${1 * scaleFactor}rem`;
-  });
-  
-  // Update CSS custom properties for Tailwind classes
+  // Update CSS custom properties for consistent layout
   const style = document.createElement('style');
   style.textContent = `
     :root {
       --font-scale: ${scaleFactor};
+      --sidebar-width: ${17.5 * scaleFactor}rem;
+      --header-height: ${3.5 * scaleFactor}rem;
+      --content-padding: ${1.5 * scaleFactor}rem;
+    }
+    
+    /* Layout adjustments */
+    .min-h-screen {
+      min-height: 100vh;
+    }
+    
+    /* Sidebar adjustments */
+    [data-sidebar="sidebar"] {
+      width: var(--sidebar-width) !important;
+      min-width: var(--sidebar-width) !important;
+    }
+    
+    .peer {
+      width: var(--sidebar-width) !important;
+    }
+    
+    /* Header adjustments */
+    header {
+      height: var(--header-height) !important;
+      min-height: var(--header-height) !important;
+      padding-left: ${1 * scaleFactor}rem !important;
+      padding-right: ${1 * scaleFactor}rem !important;
+    }
+    
+    /* Main content alignment */
+    main {
+      margin-left: 0 !important;
+      width: 100% !important;
+    }
+    
+    /* Content padding adjustments */
+    main > div {
+      padding: var(--content-padding) !important;
     }
     
     /* Auto-adjust spacing classes */
@@ -97,17 +111,7 @@ export const applyFontSizeChanges = (newFontSize: number, toast: any) => {
     .rounded { border-radius: ${0.25 * scaleFactor}rem; }
     .rounded-md { border-radius: ${0.375 * scaleFactor}rem; }
     .rounded-lg { border-radius: ${0.5 * scaleFactor}rem; }
-    
-    /* Auto-adjust header height */
-    header { 
-      height: ${3.5 * scaleFactor}rem !important; 
-      min-height: ${3.5 * scaleFactor}rem !important;
-    }
-    
-    /* Auto-adjust sidebar width */
-    [data-sidebar] {
-      width: ${16 * scaleFactor}rem;
-    }
+    .rounded-xl { border-radius: ${0.75 * scaleFactor}rem; }
     
     /* Auto-adjust button sizes */
     button {
@@ -126,16 +130,38 @@ export const applyFontSizeChanges = (newFontSize: number, toast: any) => {
       padding: ${1.5 * scaleFactor}rem;
     }
     
-    /* Ensure responsive behavior */
+    /* Grid adjustments */
+    .grid {
+      gap: ${1.5 * scaleFactor}rem;
+    }
+    
+    /* Responsive layout fixes */
     @media (max-width: 768px) {
+      :root {
+        --sidebar-width: ${16 * scaleFactor}rem;
+        --header-height: ${3 * scaleFactor}rem;
+        --content-padding: ${0.75 * scaleFactor}rem;
+      }
+      
       header { 
-        height: ${3 * scaleFactor}rem !important; 
+        height: var(--header-height) !important;
         padding: 0 ${0.75 * scaleFactor}rem !important;
       }
       
       main > div {
-        padding: ${0.75 * scaleFactor}rem !important;
+        padding: var(--content-padding) !important;
       }
+    }
+    
+    /* Ensure proper flex layout */
+    .flex-1 {
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+    }
+    
+    /* Fix sidebar alignment */
+    .peer-data-\\[state\\=collapsed\\]\\:peer-data-\\[variant\\=inset\\]\\:ml-2 {
+      margin-left: 0 !important;
     }
   `;
   
@@ -147,8 +173,13 @@ export const applyFontSizeChanges = (newFontSize: number, toast: any) => {
   style.id = 'dynamic-font-styles';
   document.head.appendChild(style);
   
+  // Force layout recalculation
+  setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 100);
+  
   toast({ 
-    title: "Font Size Updated", 
-    description: `Font size set to ${newFontSize}px with auto-adjusted spacing and layout` 
+    title: "Layout Updated", 
+    description: `Font size set to ${newFontSize}px with properly aligned sidebar and content areas` 
   });
 };
