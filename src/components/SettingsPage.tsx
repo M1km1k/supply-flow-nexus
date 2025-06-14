@@ -110,7 +110,11 @@ Active Suppliers: ${suppliers.length}
 
 === TRANSACTION SUMMARY ===
 Total Transactions: ${transactions.length}
-Recent Activity: ${transactions.slice(0, 5).map(t => `${t.type} - ${t.itemName} (${t.quantity} ${t.unitOfMeasure})`).join('\n')}
+Recent Activity: ${transactions.slice(0, 5).map(t => {
+  const inventoryItem = inventory.find(item => item.id === t.itemId);
+  const unit = inventoryItem?.unit || 'units';
+  return `${t.type} - ${t.itemName} (${t.quantity} ${unit})`;
+}).join('\n')}
     `.trim();
 
     const blob = new Blob([reportContent], { type: 'text/plain' });
@@ -154,8 +158,6 @@ Recent Activity: ${transactions.slice(0, 5).map(t => `${t.type} - ${t.itemName} 
   };
 
   const generateReport = () => {
-    const { transactions, inventory } = useSupply();
-    
     const reportData = transactions.map(t => {
       // Get unit from inventory item or use default
       const inventoryItem = inventory.find(item => item.id === t.itemId);

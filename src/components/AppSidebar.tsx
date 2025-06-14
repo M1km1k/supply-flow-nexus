@@ -70,7 +70,7 @@ export function AppSidebar() {
                         `flex items-center space-x-4 px-4 py-4 mx-2 rounded-xl transition-all duration-300 group hover:scale-105 relative overflow-hidden ${
                           isActive(item.url)
                             ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105"
-                            : "text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:text-gray-900 dark:hover:text-gray-100"
+                            : "text-black dark:text-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:text-black dark:hover:text-gray-100"
                         }`
                       }
                     >
@@ -81,16 +81,16 @@ export function AppSidebar() {
                       <div className="relative z-10">
                         <item.icon className={`w-6 h-6 transition-all duration-300 ${
                           isActive(item.url) 
-                            ? "animate-bounce drop-shadow-lg" 
-                            : "group-hover:scale-125 group-hover:rotate-12 group-hover:drop-shadow-md"
+                            ? "animate-bounce drop-shadow-lg text-white" 
+                            : "group-hover:scale-125 group-hover:rotate-12 group-hover:drop-shadow-md text-black dark:text-gray-200"
                         }`} />
                       </div>
                       
-                      {/* Text with enhanced animations */}
+                      {/* Text with enhanced animations - always black in light mode */}
                       <span className={`font-medium text-base transition-all duration-300 relative z-10 ${
                         isActive(item.url) 
-                          ? "animate-pulse drop-shadow-lg" 
-                          : "group-hover:translate-x-2 group-hover:font-semibold"
+                          ? "animate-pulse drop-shadow-lg text-white" 
+                          : "group-hover:translate-x-2 group-hover:font-semibold text-black dark:text-gray-200"
                       }`}>
                         {item.title}
                       </span>
