@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -20,8 +21,11 @@ import {
   ArrowUpDown,
   FileText,
   Home,
-  GripVertical
+  GripVertical,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -36,10 +40,12 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const [sidebarWidth, setSidebarWidth] = useState(280);
+  const [sidebarWidth, setSidebarWidth] = useState(60);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [position, setPosition] = useState<'left' | 'right'>('left');
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartX, setResizeStartX] = useState(0);
-  const [resizeStartWidth, setResizeStartWidth] = useState(280);
+  const [resizeStartWidth, setResizeStartWidth] = useState(60);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => {
@@ -56,17 +62,32 @@ export function AppSidebar() {
 
   const handleResizeMove = (e: MouseEvent) => {
     if (isResizing) {
-      const deltaX = e.clientX - resizeStartX;
+      const deltaX = position === 'left' ? e.clientX - resizeStartX : resizeStartX - e.clientX;
       const newWidth = resizeStartWidth + deltaX;
       
-      // Constrain width between 200px and 500px
-      const constrainedWidth = Math.max(200, Math.min(newWidth, 500));
+      // Constrain width between 60px (condensed) and 300px (expanded)
+      const constrainedWidth = Math.max(60, Math.min(newWidth, 300));
       setSidebarWidth(constrainedWidth);
+      setIsExpanded(constrainedWidth > 80);
     }
   };
 
   const handleResizeEnd = () => {
     setIsResizing(false);
+  };
+
+  const togglePosition = () => {
+    setPosition(prev => prev === 'left' ? 'right' : 'left');
+  };
+
+  const toggleExpanded = () => {
+    if (isExpanded) {
+      setSidebarWidth(60);
+      setIsExpanded(false);
+    } else {
+      setSidebarWidth(240);
+      setIsExpanded(true);
+    }
   };
 
   // Add global mouse events for resizing
@@ -79,12 +100,14 @@ export function AppSidebar() {
         document.removeEventListener('mouseup', handleResizeEnd);
       };
     }
-  }, [isResizing, resizeStartX, resizeStartWidth]);
+  }, [isResizing, resizeStartX, resizeStartWidth, position]);
 
   return (
     <Sidebar 
       ref={sidebarRef}
-      className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right h-screen"
+      className={`border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl h-screen ${
+        position === 'right' ? 'border-l border-r-0' : ''
+      }`}
       style={{
         width: `${sidebarWidth}px`,
         minWidth: `${sidebarWidth}px`,
@@ -92,69 +115,93 @@ export function AppSidebar() {
         transition: isResizing ? 'none' : 'width 0.2s ease-out',
         position: 'fixed',
         top: 0,
-        left: 0,
+        [position]: 0,
         zIndex: 50,
         height: '100vh'
       }}
     >
       <SidebarContent className="h-full">
-        <div className="p-6 animate-fade-in">
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group">
+        {/* Header with position toggle */}
+        <div className="p-2 border-b flex items-center justify-between">
+          {isExpanded && (
+            <div className="flex items-center space-x-2">
               <img 
                 src="/lovable-uploads/4322b65b-5e4b-43e8-b601-f7bd229fcd71.png" 
                 alt="InventOMatic Logo" 
-                className="w-12 h-12 rounded-xl object-cover animate-float group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 hover:animate-glow"
+                className="w-8 h-8 rounded-lg object-cover"
               />
+              <h2 className="font-bold text-sm bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">InventOMatic</h2>
             </div>
-            <div className="animate-slide-right flex-1">
-              <h2 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">InventOMatic</h2>
-              <p className="text-xs text-gray-600 dark:text-gray-400 animate-fade-in">Inventory Management</p>
-            </div>
+          )}
+          {!isExpanded && (
+            <img 
+              src="/lovable-uploads/4322b65b-5e4b-43e8-b601-f7bd229fcd71.png" 
+              alt="InventOMatic Logo" 
+              className="w-8 h-8 rounded-lg object-cover mx-auto"
+            />
+          )}
+          <div className="flex flex-col space-y-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={togglePosition}
+              className="p-1 h-6 w-6"
+              title={`Move to ${position === 'left' ? 'right' : 'left'}`}
+            >
+              {position === 'left' ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleExpanded}
+              className="p-1 h-6 w-6"
+              title={isExpanded ? 'Collapse' : 'Expand'}
+            >
+              <GripVertical className="w-3 h-3" />
+            </Button>
           </div>
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="animate-fade-in text-gray-700 dark:text-gray-300 px-4 mb-2">Navigation</SidebarGroupLabel>
+          {isExpanded && (
+            <SidebarGroupLabel className="text-gray-700 dark:text-gray-300 px-4 mb-2">Navigation</SidebarGroupLabel>
+          )}
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item, index) => (
-                <SidebarMenuItem key={item.title} className="animate-slide-right px-2" style={{ animationDelay: `${index * 0.1}s` }}>
+                <SidebarMenuItem key={item.title} className="px-2">
                   <SidebarMenuButton asChild className="w-full h-auto p-0">
                     <NavLink
                       to={item.url}
                       className={({ isActive: linkActive }) =>
-                        `flex items-center space-x-4 px-4 py-4 mx-2 rounded-xl transition-all duration-300 group hover:scale-105 relative overflow-hidden ${
+                        `flex items-center ${isExpanded ? 'space-x-3' : 'justify-center'} px-3 py-3 mx-1 rounded-xl transition-all duration-300 group hover:scale-105 relative overflow-hidden ${
                           isActive(item.url)
                             ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105"
                             : "text-black dark:text-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:text-black dark:hover:text-gray-100"
                         }`
                       }
+                      title={!isExpanded ? item.title : undefined}
                     >
-                      {/* Animated background effect */}
-                      <div className={`absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isActive(item.url) ? 'opacity-100' : ''}`} />
-                      
-                      {/* Icon with enhanced animations */}
                       <div className="relative z-10">
-                        <item.icon className={`w-6 h-6 transition-all duration-300 ${
+                        <item.icon className={`w-5 h-5 transition-all duration-300 ${
                           isActive(item.url) 
-                            ? "animate-bounce drop-shadow-lg text-white" 
-                            : "group-hover:scale-125 group-hover:rotate-12 group-hover:drop-shadow-md text-black dark:text-gray-200"
+                            ? "text-white" 
+                            : "text-black dark:text-gray-200"
                         }`} />
                       </div>
                       
-                      {/* Text with enhanced animations - always black in light mode */}
-                      <span className={`font-medium text-base transition-all duration-300 relative z-10 ${
-                        isActive(item.url) 
-                          ? "animate-pulse drop-shadow-lg text-white" 
-                          : "group-hover:translate-x-2 group-hover:font-semibold text-black dark:text-gray-200"
-                      }`}>
-                        {item.title}
-                      </span>
+                      {isExpanded && (
+                        <span className={`font-medium text-sm transition-all duration-300 relative z-10 ${
+                          isActive(item.url) 
+                            ? "text-white" 
+                            : "text-black dark:text-gray-200"
+                        }`}>
+                          {item.title}
+                        </span>
+                      )}
                       
-                      {/* Animated indicator */}
                       {isActive(item.url) && (
-                        <div className="absolute right-2 w-2 h-2 bg-white rounded-full animate-ping" />
+                        <div className={`absolute ${position === 'left' ? 'right-1' : 'left-1'} w-1 h-1 bg-white rounded-full animate-ping`} />
                       )}
                     </NavLink>
                   </SidebarMenuButton>
@@ -164,41 +211,26 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="mt-auto p-6 animate-fade-in">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-100/20 to-purple-100/20 animate-pulse" />
-            
-            <div className="animate-slide-up relative z-10">
-              <h3 className="font-semibold text-sm text-gray-800 dark:text-white mb-3">System Status</h3>
-              <div className="flex items-center justify-center space-x-3">
-                <div className="relative">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                  <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75" />
-                </div>
-                <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">All Systems Operational</span>
-              </div>
-              
-              <div className="mt-3 flex justify-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Online</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Synced</span>
-                </div>
+        {isExpanded && (
+          <div className="mt-auto p-4">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-3 text-center">
+              <h3 className="font-semibold text-xs text-gray-800 dark:text-white mb-2">System Status</h3>
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-xs text-gray-600 dark:text-gray-300">Operational</span>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </SidebarContent>
 
+      {/* Resize handle */}
       <div
-        className="absolute top-0 right-0 w-1 h-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 dark:hover:bg-blue-400 cursor-col-resize transition-colors duration-200 opacity-0 hover:opacity-100 group"
+        className={`absolute top-0 ${position === 'left' ? 'right-0' : 'left-0'} w-1 h-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 dark:hover:bg-blue-400 cursor-col-resize transition-colors duration-200 opacity-0 hover:opacity-100 group`}
         onMouseDown={handleResizeStart}
       >
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <GripVertical className="w-4 h-4 text-white" />
+          <GripVertical className="w-3 h-3 text-white" />
         </div>
       </div>
     </Sidebar>
