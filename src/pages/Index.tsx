@@ -21,22 +21,24 @@ const Index = () => {
           <div className="min-h-screen flex w-full relative overflow-hidden">
             <AnimatedBackground />
             <AppSidebar />
-            <main className="flex-1 flex flex-col relative z-10">
-              <header className="h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center px-6 shadow-lg animate-slide-down">
+            <main className="flex-1 flex flex-col relative z-10 min-w-0">
+              <header className="h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center px-6 shadow-lg animate-slide-down flex-shrink-0">
                 <SidebarTrigger className="mr-4 hover:scale-110 transition-transform duration-200 text-gray-700 dark:text-gray-200" />
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
                   InventOMatic
                 </h1>
               </header>
               <div className="flex-1 p-6 overflow-auto">
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/inventory" element={<InventoryPage />} />
-                  <Route path="/suppliers" element={<SuppliersPage />} />
-                  <Route path="/transactions" element={<TransactionsPage />} />
-                  <Route path="/audit" element={<AuditTrailPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                </Routes>
+                <div className="max-w-full mx-auto">
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/inventory" element={<InventoryPage />} />
+                    <Route path="/suppliers" element={<SuppliersPage />} />
+                    <Route path="/transactions" element={<TransactionsPage />} />
+                    <Route path="/audit" element={<AuditTrailPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                  </Routes>
+                </div>
               </div>
             </main>
           </div>

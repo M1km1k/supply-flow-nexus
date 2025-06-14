@@ -91,10 +91,12 @@ export const TransactionsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Inbound/Outbound Transactions</h1>
+    <div className="w-full">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Inbound/Outbound Transactions</h1>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
         {/* Transaction Form */}
         <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
           <CardHeader>
@@ -104,10 +106,10 @@ export const TransactionsPage: React.FC = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
+              <div className="w-full">
                 <Label htmlFor="type">Transaction Type *</Label>
                 <Select value={formData.type} onValueChange={(value: 'inbound' | 'outbound') => setFormData(prev => ({ ...prev, type: value }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -127,10 +129,10 @@ export const TransactionsPage: React.FC = () => {
                 </Select>
               </div>
 
-              <div>
+              <div className="w-full">
                 <Label htmlFor="itemId">Item *</Label>
                 <Select value={formData.itemId} onValueChange={(value) => setFormData(prev => ({ ...prev, itemId: value }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select an item" />
                   </SelectTrigger>
                   <SelectContent>
@@ -143,7 +145,7 @@ export const TransactionsPage: React.FC = () => {
                 </Select>
               </div>
 
-              <div>
+              <div className="w-full">
                 <Label htmlFor="quantity">Quantity *</Label>
                 <Input
                   id="quantity"
@@ -151,49 +153,53 @@ export const TransactionsPage: React.FC = () => {
                   value={formData.quantity}
                   onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
                   placeholder="Enter quantity"
+                  className="w-full"
                   required
                 />
               </div>
 
-              <div>
+              <div className="w-full">
                 <Label htmlFor="reference">Reference/Order Number *</Label>
                 <Input
                   id="reference"
                   value={formData.reference}
                   onChange={(e) => setFormData(prev => ({ ...prev, reference: e.target.value }))}
                   placeholder="e.g., PO-2024-001"
+                  className="w-full"
                   required
                 />
               </div>
 
               {formData.type === 'inbound' && (
-                <div>
+                <div className="w-full">
                   <Label htmlFor="supplier">Supplier</Label>
                   <Input
                     id="supplier"
                     value={formData.supplier}
                     onChange={(e) => setFormData(prev => ({ ...prev, supplier: e.target.value }))}
                     placeholder="Supplier name"
+                    className="w-full"
                   />
                 </div>
               )}
 
-              <div>
+              <div className="w-full">
                 <Label htmlFor="notes">Notes</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Additional notes or comments"
+                  className="w-full"
                   rows={3}
                 />
               </div>
 
-              <div className="flex space-x-2 pt-4">
+              <div className="flex flex-col sm:flex-row gap-2 pt-4 w-full">
                 <Button type="submit" className="flex-1">
                   Record Transaction
                 </Button>
-                <Button type="button" variant="outline" onClick={printForm}>
+                <Button type="button" variant="outline" onClick={printForm} className="flex-1 sm:flex-none">
                   Print Form
                 </Button>
               </div>
@@ -215,30 +221,32 @@ export const TransactionsPage: React.FC = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       {transaction.type === 'inbound' ? (
-                        <ArrowDown className="w-4 h-4 text-green-600" />
+                        <ArrowDown className="w-4 h-4 text-green-600 flex-shrink-0" />
                       ) : (
-                        <ArrowUp className="w-4 h-4 text-red-600" />
+                        <ArrowUp className="w-4 h-4 text-red-600 flex-shrink-0" />
                       )}
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-gray-900 dark:text-white truncate">
                         {transaction.itemName}
                       </span>
                     </div>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 flex-shrink-0">
                       {new Date(transaction.date).toLocaleDateString()}
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     {transaction.type === 'inbound' ? 'Received' : 'Dispatched'} {transaction.quantity} units
                   </p>
-                  <p className="text-xs text-gray-500">Ref: {transaction.reference}</p>
+                  <p className="text-xs text-gray-500 truncate">Ref: {transaction.reference}</p>
                   {transaction.notes && (
-                    <p className="text-xs text-gray-500 mt-1">{transaction.notes}</p>
+                    <p className="text-xs text-gray-500 mt-1 truncate">{transaction.notes}</p>
                   )}
                 </div>
               ))}
               
               {transactions.length === 0 && (
-                <p className="text-gray-500 text-center py-8">No transactions recorded yet.</p>
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No transactions recorded yet.</p>
+                </div>
               )}
             </div>
           </CardContent>
