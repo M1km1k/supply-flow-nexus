@@ -14,8 +14,10 @@ import { SupplierPerformanceChart } from './SupplierPerformanceChart';
 
 export const ModularDashboard: React.FC = () => {
   const { inventory, suppliers, transactions } = useSupply();
-  const { user, hasPermission, isAdmin } = useAuth();
-  const [visibleWidgets, setVisibleWidgets] = useState<string[]>(['predictive-analytics']);
+  const { user, hasPermission, isAdmin, isStaff } = useAuth();
+  const [visibleWidgets, setVisibleWidgets] = useState<string[]>(
+    isStaff() ? [] : ['predictive-analytics']
+  );
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const toggleWidget = (widgetId: string) => {
@@ -41,25 +43,32 @@ export const ModularDashboard: React.FC = () => {
             <Badge variant="outline" className="animate-slide-right" style={{ animationDelay: '0.2s' }}>
               {user?.department}
             </Badge>
+            {isStaff() && (
+              <Badge variant="destructive" className="animate-slide-right" style={{ animationDelay: '0.3s' }}>
+                LIMITED ACCESS
+              </Badge>
+            )}
           </div>
         </div>
 
-        {/* Widget Controls */}
-        <div className="flex space-x-2">
-          <div className="flex space-x-1">
-            {['all', 'analytics', 'operations', 'management', 'security'].map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className="animate-bounce-in"
-              >
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </Button>
-            ))}
+        {/* Widget Controls - Hidden for staff */}
+        {!isStaff() && (
+          <div className="flex space-x-2">
+            <div className="flex space-x-1">
+              {['all', 'analytics', 'operations', 'management', 'security'].map((category) => (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category)}
+                  className="animate-bounce-in"
+                >
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </Button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Enhanced Stats Grid */}
@@ -70,25 +79,43 @@ export const ModularDashboard: React.FC = () => {
         isAdmin={isAdmin}
       />
 
-      {/* Dashboard Widgets */}
-      <DashboardWidgets
-        visibleWidgets={visibleWidgets}
-        selectedCategory={selectedCategory}
-        userRole={user?.role || ''}
-        onToggleWidget={toggleWidget}
-      />
+      {/* Dashboard Widgets - Hidden for staff */}
+      {!isStaff() && (
+        <DashboardWidgets
+          visibleWidgets={visibleWidgets}
+          selectedCategory={selectedCategory}
+          userRole={user?.role || ''}
+          onToggleWidget={toggleWidget}
+        />
+      )}
 
-      {/* Charts Section - Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <InventoryFlowChart />
-        <StockDistributionChart />
-      </div>
+      {/* Charts Section - Limited for staff */}
+      {!isStaff() && (
+        <>
+          {/* Charts Section - Row 1 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <InventoryFlowChart />
+            <StockDistributionChart />
+          </div>
 
-      {/* Charts Section - Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CategoryPerformanceChart />
-        <SupplierPerformanceChart />
-      </div>
+          {/* Charts Section - Row 2 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CategoryPerformanceChart />
+            <SupplierPerformanceChart />
+          </div>
+        </>
+      )}
+
+      {/* Staff get a simple message instead of charts */}
+      {isStaff() && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-yellow-800 mb-2">Limited Access Account</h3>
+          <p className="text-yellow-700">
+            As a staff member, you have read-only access to inventory and can create transactions. 
+            Contact your administrator for additional permissions.
+          </p>
+        </div>
+      )}
 
       {/* System Status Footer */}
       <SystemStatusFooter />

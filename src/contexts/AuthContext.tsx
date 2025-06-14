@@ -25,6 +25,7 @@ interface AuthContextType {
   hasPermission: (resource: string, action: string) => boolean;
   isAdmin: () => boolean;
   isManager: () => boolean;
+  isStaff: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,7 +51,9 @@ const mockUsers: User[] = [
       { resource: 'suppliers', actions: ['create', 'read', 'update', 'delete'] },
       { resource: 'users', actions: ['create', 'read', 'update', 'delete'] },
       { resource: 'reports', actions: ['create', 'read', 'update', 'delete'] },
-      { resource: 'settings', actions: ['create', 'read', 'update', 'delete'] }
+      { resource: 'settings', actions: ['create', 'read', 'update', 'delete'] },
+      { resource: 'audit', actions: ['read'] },
+      { resource: 'analytics', actions: ['read'] }
     ]
   },
   {
@@ -63,7 +66,9 @@ const mockUsers: User[] = [
       { resource: 'inventory', actions: ['create', 'read', 'update'] },
       { resource: 'suppliers', actions: ['create', 'read', 'update'] },
       { resource: 'reports', actions: ['read', 'create'] },
-      { resource: 'transactions', actions: ['create', 'read', 'update'] }
+      { resource: 'transactions', actions: ['create', 'read', 'update'] },
+      { resource: 'audit', actions: ['read'] },
+      { resource: 'analytics', actions: ['read'] }
     ]
   },
   {
@@ -73,9 +78,8 @@ const mockUsers: User[] = [
     role: 'staff',
     department: 'Operations',
     permissions: [
-      { resource: 'inventory', actions: ['read', 'update'] },
-      { resource: 'transactions', actions: ['create', 'read'] },
-      { resource: 'suppliers', actions: ['read'] }
+      { resource: 'inventory', actions: ['read'] },
+      { resource: 'transactions', actions: ['create'] }
     ]
   }
 ];
@@ -127,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isAdmin = (): boolean => user?.role === 'admin' || false;
   const isManager = (): boolean => user?.role === 'manager' || user?.role === 'admin' || false;
+  const isStaff = (): boolean => user?.role === 'staff' || false;
 
   return (
     <AuthContext.Provider value={{
@@ -136,7 +141,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout,
       hasPermission,
       isAdmin,
-      isManager
+      isManager,
+      isStaff
     }}>
       {children}
     </AuthContext.Provider>

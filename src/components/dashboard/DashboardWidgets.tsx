@@ -46,7 +46,8 @@ const availableWidgets: DashboardWidget[] = [
     component: CalendarWidget,
     icon: Calendar,
     size: 'medium',
-    category: 'operations'
+    category: 'operations',
+    requiredRole: ['admin', 'manager']
   },
   {
     id: 'system-chatbot',
@@ -54,7 +55,8 @@ const availableWidgets: DashboardWidget[] = [
     component: MiniChatbot,
     icon: MessageSquare,
     size: 'medium',
-    category: 'management'
+    category: 'management',
+    requiredRole: ['admin', 'manager']
   }
 ];
 
@@ -71,6 +73,11 @@ export const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({
   userRole,
   onToggleWidget
 }) => {
+  // Staff users should not see any widgets
+  if (userRole === 'staff') {
+    return null;
+  }
+
   const filteredWidgets = availableWidgets.filter(widget => {
     const hasRole = !widget.requiredRole || widget.requiredRole.includes(userRole);
     const matchesCategory = selectedCategory === 'all' || widget.category === selectedCategory;
