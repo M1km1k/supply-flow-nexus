@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -187,13 +186,14 @@ export const NotificationDropdown: React.FC = () => {
 
       {isOpen && (
         <>
-          {/* Backdrop overlay for better visibility */}
+          {/* Enhanced backdrop overlay with higher z-index */}
           <div 
-            className="fixed inset-0 z-[9998] bg-black/10 dark:bg-black/20" 
+            className="fixed inset-0 z-[99999] bg-black/20" 
             onClick={() => setIsOpen(false)}
           />
           
-          <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-2xl z-[9999] max-h-96 overflow-hidden backdrop-blur-sm">
+          {/* Dropdown with maximum z-index to ensure it's always on top */}
+          <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-2xl z-[100000] max-h-96 overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800">
               <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
               <div className="flex items-center space-x-2">
