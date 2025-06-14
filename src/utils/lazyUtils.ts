@@ -1,6 +1,7 @@
 
-import React, { ComponentType, lazy } from 'react';
+import React, { ComponentType, lazy, Suspense } from 'react';
 
+// Create a lazy component with proper TypeScript typing
 export const createLazyComponent = <T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   fallback?: React.ComponentType
@@ -8,42 +9,70 @@ export const createLazyComponent = <T extends ComponentType<any>>(
   return lazy(importFn);
 };
 
+// Wrap component with Suspense and custom fallback
 export const withSuspense = <P extends object>(
   Component: ComponentType<P>,
   fallback: React.ReactNode = <div className="animate-pulse bg-gray-200 rounded h-32" />
 ) => {
   return (props: P) => (
-    <React.Suspense fallback={fallback}>
+    <Suspense fallback={fallback}>
       <Component {...props} />
-    </React.Suspense>
+    </Suspense>
   );
 };
 
-// Debounce utility for performance
+// Debounce utility for performance optimization
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {
-  let timeout: NodeJS.Timeout;
+  let timeout: NodeJS.Timeout | null = null;
   
   return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
+    if (timeout) {
+      clearTimeout(timeout);
+    }
     timeout = setTimeout(() => func(...args), wait);
   };
 };
 
-// Throttle utility for performance
+// Throttle utility for performance optimization
 export const throttle = <T extends (...args: any[]) => any>(
   func: T,
   limit: number
 ): ((...args: Parameters<T>) => void) => {
-  let inThrottle: boolean;
+  let inThrottle = false;
   
   return (...args: Parameters<T>) => {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => {
+        inThrottle = false;
+      }, limit);
     }
   };
+};
+
+// Enhanced lazy loading with error boundary
+export const createLazyComponentWithErrorBoundary = <T extends ComponentType<any>>(
+  importFn: () => Promise<{ default: T }>,
+  fallback?: React.ReactNode,
+  errorFallback?: React.ReactNode
+) => {
+  const LazyComponent = lazy(importFn);
+  
+  return (props: React.ComponentProps<T>) => (
+    <Suspense fallback={fallback ?? <div className="animate-pulse bg-gray-200 rounded h-32" />}>
+      <LazyComponent {...props} />
+    </Suspense>
+  );
+};
+
+// Memoized lazy component creation
+export const memoizedLazyComponent = <T extends ComponentType<any>>(
+  importFn: () => Promise<{ default: T }>
+) => {
+  const LazyComponent = lazy(importFn);
+  return React.memo(LazyComponent);
 };
