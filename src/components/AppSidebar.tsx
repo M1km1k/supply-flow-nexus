@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -20,7 +21,7 @@ import {
   ArrowUpDown,
   FileText,
   Home,
-  Move
+  GripVertical
 } from "lucide-react";
 
 const menuItems = [
@@ -36,9 +37,10 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const [positionX, setPositionX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartX, setDragStartX] = useState(0);
+  const [sidebarWidth, setSidebarWidth] = useState(280);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeStartX, setResizeStartX] = useState(0);
+  const [resizeStartWidth, setResizeStartWidth] = useState(280);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => {
@@ -46,50 +48,49 @@ export function AppSidebar() {
     return currentPath.startsWith(path);
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.drag-handle')) {
-      setIsDragging(true);
-      setDragStartX(e.clientX - positionX);
-      e.preventDefault();
+  const handleResizeStart = (e: React.MouseEvent) => {
+    setIsResizing(true);
+    setResizeStartX(e.clientX);
+    setResizeStartWidth(sidebarWidth);
+    e.preventDefault();
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (isResizing) {
+      const deltaX = e.clientX - resizeStartX;
+      const newWidth = resizeStartWidth + deltaX;
+      
+      // Constrain width between 200px and 500px
+      const constrainedWidth = Math.max(200, Math.min(newWidth, 500));
+      setSidebarWidth(constrainedWidth);
     }
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging) {
-      const newX = e.clientX - dragStartX;
-      
-      // Constrain to viewport width only
-      const maxX = window.innerWidth - 280;
-      
-      setPositionX(Math.max(0, Math.min(newX, maxX)));
-    }
+  const handleResizeEnd = () => {
+    setIsResizing(false);
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  // Add global mouse events
+  // Add global mouse events for resizing
   React.useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeEnd);
       };
     }
-  }, [isDragging, dragStartX, positionX]);
+  }, [isResizing, resizeStartX, resizeStartWidth]);
 
   return (
     <Sidebar 
       ref={sidebarRef}
-      className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right min-w-[280px] w-[280px] fixed z-[9999] cursor-move"
+      className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right fixed z-[9999] relative"
       style={{
-        transform: `translateX(${positionX}px)`,
-        transition: isDragging ? 'none' : 'transform 0.2s ease-out'
+        width: `${sidebarWidth}px`,
+        minWidth: `${sidebarWidth}px`,
+        transition: isResizing ? 'none' : 'width 0.2s ease-out'
       }}
-      onMouseDown={handleMouseDown}
     >
       <SidebarContent>
         <div className="p-6 animate-fade-in">
@@ -104,9 +105,6 @@ export function AppSidebar() {
             <div className="animate-slide-right flex-1">
               <h2 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">InventOMatic</h2>
               <p className="text-xs text-gray-600 dark:text-gray-400 animate-fade-in">Inventory Management</p>
-            </div>
-            <div className="drag-handle cursor-move p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-              <Move className="w-4 h-4 text-gray-500" />
             </div>
           </div>
         </div>
@@ -192,6 +190,16 @@ export function AppSidebar() {
           </div>
         </div>
       </SidebarContent>
+
+      {/* Resize Handle */}
+      <div
+        className="absolute top-0 right-0 w-1 h-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 dark:hover:bg-blue-400 cursor-col-resize transition-colors duration-200 opacity-0 hover:opacity-100 group"
+        onMouseDown={handleResizeStart}
+      >
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <GripVertical className="w-4 h-4 text-white" />
+        </div>
+      </div>
     </Sidebar>
   );
 }
