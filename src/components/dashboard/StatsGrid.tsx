@@ -15,10 +15,13 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ inventory, suppliers }) =>
   const lowStockItems = inventory.filter(item => item.status === 'Low Stock').length;
   const activeOrders = supplierPerformanceData.reduce((sum, supplier) => sum + supplier.totalOrders, 0);
 
+  // Convert USD to PHP (approximate conversion rate: 1 USD = 56 PHP)
+  const convertToPHP = (usdValue: number) => Math.round(usdValue * 56);
+
   const stats = [
     {
       title: 'Total Inventory Value',
-      value: `$${totalValue.toLocaleString()}`,
+      value: `₱${convertToPHP(totalValue).toLocaleString()}`,
       icon: DollarSign,
       color: 'from-green-500 to-green-600',
       bgColor: 'from-green-50 to-green-100',
