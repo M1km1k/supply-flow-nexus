@@ -2,32 +2,12 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Zap, Plus, Settings, Bell, Package, Users, Mail } from 'lucide-react';
+import { Zap, Plus, Settings, Bell, Package, Users, Mail, Edit } from 'lucide-react';
 import { useSupply } from '@/contexts/SupplyContext';
 import { useToast } from '@/hooks/use-toast';
-
-interface AutomationRule {
-  id: string;
-  name: string;
-  trigger: 'low_stock' | 'out_of_stock' | 'supplier_delay' | 'new_item' | 'scheduled';
-  condition: {
-    threshold?: number;
-    category?: string;
-    supplier?: string;
-  };
-  actions: {
-    type: 'email_alert' | 'reorder' | 'notify_admin' | 'update_status' | 'generate_report';
-    recipients?: string[];
-    message?: string;
-  }[];
-  isActive: boolean;
-  lastTriggered?: string;
-}
+import { AutomationRuleDialog, AutomationRule } from './AutomationRuleDialog';
 
 const defaultRules: AutomationRule[] = [
   {
@@ -68,7 +48,8 @@ const defaultRules: AutomationRule[] = [
 
 export const AutomationRules: React.FC = () => {
   const [rules, setRules] = useState<AutomationRule[]>(defaultRules);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingRule, setEditingRule] = useState<AutomationRule | undefined>();
   const { inventory, suppliers } = useSupply();
   const { toast } = useToast();
 
@@ -77,6 +58,33 @@ export const AutomationRules: React.FC = () => {
       rule.id === ruleId ? { ...rule, isActive: !rule.isActive } : rule
     ));
     toast({ title: "Rule updated", description: "Automation rule status changed successfully." });
+  };
+
+  const handleSaveRule = (ruleData: Omit<AutomationRule, 'id'> | AutomationRule) => {
+    if ('id' in ruleData) {
+      // Editing existing rule
+      setRules(prev => prev.map(rule => 
+        rule.id === ruleData.id ? ruleData as AutomationRule : rule
+      ));
+    } else {
+      // Adding new rule
+      const newRule: AutomationRule = {
+        ...ruleData,
+        id: Math.random().toString(36).substr(2, 9)
+      };
+      setRules(prev => [...prev, newRule]);
+    }
+    setEditingRule(undefined);
+  };
+
+  const handleEditRule = (rule: AutomationRule) => {
+    setEditingRule(rule);
+    setDialogOpen(true);
+  };
+
+  const handleAddRule = () => {
+    setEditingRule(undefined);
+    setDialogOpen(true);
   };
 
   const getTriggerIcon = (trigger: string) => {
@@ -106,7 +114,7 @@ export const AutomationRules: React.FC = () => {
           <Zap className="w-6 h-6 text-blue-600" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Automation Rules</h2>
         </div>
-        <Button onClick={() => setShowAddForm(true)} className="animate-bounce-in">
+        <Button onClick={handleAddRule} className="animate-bounce-in">
           <Plus className="w-4 h-4 mr-2" />
           Add Rule
         </Button>
@@ -196,6 +204,13 @@ export const AutomationRules: React.FC = () => {
                       Last: {new Date(rule.lastTriggered).toLocaleDateString()}
                     </p>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditRule(rule)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
                   <Switch
                     checked={rule.isActive}
                     onCheckedChange={() => toggleRule(rule.id)}
@@ -206,6 +221,13 @@ export const AutomationRules: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      <AutomationRuleDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        rule={editingRule}
+        onSave={handleSaveRule}
+      />
     </div>
   );
 };
