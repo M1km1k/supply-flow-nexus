@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,12 +17,8 @@ export const AppearanceCard: React.FC = () => {
     animationStyle: 'smooth'
   });
 
-  const handleFontSizeChange = (value: number[]) => {
-    setFontSize(value);
-    applyFontSizeChanges(value[0], toast);
-  };
-
-  const handleSaveSystemPreferences = () => {
+  // Auto-apply font family changes
+  useEffect(() => {
     const getFontFamily = (font: string) => {
       const fonts = {
         'inter': 'Inter, system-ui, -apple-system, sans-serif',
@@ -35,8 +31,107 @@ export const AppearanceCard: React.FC = () => {
     };
 
     document.documentElement.style.fontFamily = getFontFamily(systemPreferences.fontFamily);
-    document.documentElement.setAttribute('data-animation-style', systemPreferences.animationStyle);
-    toast({ title: "Success", description: "System preferences updated successfully!" });
+  }, [systemPreferences.fontFamily]);
+
+  // Auto-apply animation style changes
+  useEffect(() => {
+    const applyAnimationStyle = (style: string) => {
+      const root = document.documentElement;
+      
+      // Remove existing animation classes
+      root.classList.remove('animation-smooth', 'animation-bouncy', 'animation-minimal', 'animation-energetic');
+      
+      // Add new animation class
+      root.classList.add(`animation-${style}`);
+      
+      // Create or update animation style rules
+      const existingAnimationStyles = document.getElementById('dynamic-animation-styles');
+      if (existingAnimationStyles) {
+        existingAnimationStyles.remove();
+      }
+      
+      const animationStyles = document.createElement('style');
+      animationStyles.id = 'dynamic-animation-styles';
+      
+      let cssRules = '';
+      
+      switch (style) {
+        case 'bouncy':
+          cssRules = `
+            .animation-bouncy * {
+              animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+            }
+            .animation-bouncy .animate-fade-in {
+              animation: fade-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            }
+            .animation-bouncy .animate-slide-right {
+              animation: slide-right 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            }
+          `;
+          break;
+        case 'minimal':
+          cssRules = `
+            .animation-minimal * {
+              animation-duration: 0.2s !important;
+              transition-duration: 0.15s !important;
+            }
+            .animation-minimal .animate-bounce {
+              animation: none !important;
+            }
+            .animation-minimal .animate-pulse {
+              animation: none !important;
+            }
+          `;
+          break;
+        case 'energetic':
+          cssRules = `
+            .animation-energetic * {
+              animation-duration: 0.4s !important;
+              transition-duration: 0.3s !important;
+            }
+            .animation-energetic .animate-float {
+              animation: float 1.5s ease-in-out infinite;
+            }
+            .animation-energetic .animate-glow {
+              animation: glow 1s ease-in-out infinite alternate;
+            }
+          `;
+          break;
+        default: // smooth
+          cssRules = `
+            .animation-smooth * {
+              animation-timing-function: ease-out !important;
+              transition-timing-function: ease-out !important;
+            }
+          `;
+      }
+      
+      animationStyles.textContent = cssRules;
+      document.head.appendChild(animationStyles);
+    };
+
+    applyAnimationStyle(systemPreferences.animationStyle);
+  }, [systemPreferences.animationStyle]);
+
+  const handleFontSizeChange = (value: number[]) => {
+    setFontSize(value);
+    applyFontSizeChanges(value[0], toast);
+  };
+
+  const handleFontFamilyChange = (value: string) => {
+    setSystemPreferences(prev => ({ ...prev, fontFamily: value }));
+    toast({ 
+      title: "Font Updated", 
+      description: `Font family changed to ${value.charAt(0).toUpperCase() + value.slice(1)}` 
+    });
+  };
+
+  const handleAnimationStyleChange = (value: string) => {
+    setSystemPreferences(prev => ({ ...prev, animationStyle: value }));
+    toast({ 
+      title: "Animation Updated", 
+      description: `Animation style changed to ${value.charAt(0).toUpperCase() + value.slice(1)}` 
+    });
   };
 
   return (
@@ -80,10 +175,10 @@ export const AppearanceCard: React.FC = () => {
         </div>
 
         <div className="space-y-3">
-          <Label>Font Family</Label>
+          <Label>Font Family (Auto-applied)</Label>
           <Select 
             value={systemPreferences.fontFamily} 
-            onValueChange={(value) => setSystemPreferences(prev => ({ ...prev, fontFamily: value }))}
+            onValueChange={handleFontFamilyChange}
           >
             <SelectTrigger>
               <SelectValue />
@@ -99,10 +194,10 @@ export const AppearanceCard: React.FC = () => {
         </div>
 
         <div className="space-y-3">
-          <Label>Animation Style</Label>
+          <Label>Animation Style (Auto-applied)</Label>
           <Select 
             value={systemPreferences.animationStyle} 
-            onValueChange={(value) => setSystemPreferences(prev => ({ ...prev, animationStyle: value }))}
+            onValueChange={handleAnimationStyleChange}
           >
             <SelectTrigger>
               <SelectValue />
@@ -114,6 +209,9 @@ export const AppearanceCard: React.FC = () => {
               <SelectItem value="energetic">Energetic</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-xs text-gray-500">
+            Changes are applied instantly across the entire application
+          </p>
         </div>
       </CardContent>
     </Card>

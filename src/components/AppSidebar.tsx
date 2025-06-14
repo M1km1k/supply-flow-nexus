@@ -47,11 +47,11 @@ export function AppSidebar() {
       <SidebarContent>
         <div className="p-6 animate-fade-in">
           <div className="flex items-center space-x-3 mb-8">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group">
               <img 
                 src="/lovable-uploads/4322b65b-5e4b-43e8-b601-f7bd229fcd71.png" 
                 alt="InventOMatic Logo" 
-                className="w-12 h-12 rounded-xl object-cover"
+                className="w-12 h-12 rounded-xl object-cover animate-float group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 hover:animate-glow"
               />
             </div>
             <div className="animate-slide-right">
