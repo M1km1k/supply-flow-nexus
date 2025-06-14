@@ -1,6 +1,6 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
+
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Dashboard } from "@/components/Dashboard";
 import { ModularDashboard } from "@/components/dashboard/ModularDashboard";
 import { InventoryPage } from "@/components/InventoryPage";
@@ -112,9 +112,10 @@ const AppContent = () => {
       <div className="min-h-screen flex w-full relative overflow-hidden">
         <BackgroundManager style={backgroundStyle} />
         <AppSidebar />
-        <div className="flex-1 flex flex-col relative z-10 min-w-0">
+        <SidebarInset className="flex-1">
           <header className="h-14 sm:h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center justify-between px-3 sm:px-4 lg:px-6 shadow-lg animate-slide-down flex-shrink-0">
             <div className="flex items-center min-w-0 flex-1 gap-2 sm:gap-3">
+              <SidebarTrigger />
               <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent bg-[length:200%] animate-[gradient_12s_ease-in-out_infinite] truncate">
                 InventOMatic
               </h1>
@@ -162,7 +163,7 @@ const AppContent = () => {
               </div>
             </div>
           </main>
-        </div>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );
