@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -84,6 +83,14 @@ export const SystemPreferencesCard: React.FC = () => {
     
     // Apply changes immediately
     applySystemPreferences(newPrefs);
+
+    // Dispatch currency change event for system-wide updates
+    if (key === 'currency') {
+      const currencyEvent = new CustomEvent('currencyChange', { 
+        detail: { currency: value } 
+      });
+      window.dispatchEvent(currencyEvent);
+    }
   };
 
   const handleSaveSystemPreferences = () => {
@@ -193,6 +200,7 @@ export const SystemPreferencesCard: React.FC = () => {
               <SelectItem value="GBP">GBP (£)</SelectItem>
               <SelectItem value="JPY">JPY (¥)</SelectItem>
               <SelectItem value="CAD">CAD ($)</SelectItem>
+              <SelectItem value="PHP">PHP (₱)</SelectItem>
             </SelectContent>
           </Select>
         </div>
