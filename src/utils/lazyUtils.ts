@@ -69,10 +69,29 @@ export const createLazyComponentWithErrorBoundary = <T extends ComponentType<any
   );
 };
 
-// Memoized lazy component creation
+// Updated: memoizedLazyComponent — define once, return wrapper
 export const memoizedLazyComponent = <T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>
 ) => {
+  const LazyComponent = React.memo(lazy(importFn));
+  // Return a wrapper to preserve referential integrity
+  return (props: React.ComponentProps<T>) => <LazyComponent {...props} />;
+};
+
+// Updated: createLazyComponentWithErrorBoundary — define LazyComponent once
+export const createLazyComponentWithErrorBoundary = <T extends ComponentType<any>>(
+  importFn: () => Promise<{ default: T }>,
+  fallback?: React.ReactNode,
+  errorFallback?: React.ReactNode // Optional, not yet used
+) => {
   const LazyComponent = lazy(importFn);
-  return React.memo(LazyComponent);
+
+  // You could enhance with real error boundary if desired
+  const Wrapped = (props: React.ComponentProps<T>) => (
+    <Suspense fallback={fallback ?? <div className="animate-pulse bg-gray-200 rounded h-32" />}>
+      <LazyComponent {...props} />
+    </Suspense>
+  );
+
+  return Wrapped;
 };
