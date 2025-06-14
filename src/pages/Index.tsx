@@ -1,4 +1,3 @@
-
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -15,11 +14,12 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SupplyContextProvider } from "@/contexts/SupplyContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BackgroundManager } from "@/components/BackgroundManager";
+import { NotificationDropdown } from "@/components/NotificationDropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Shield, User, LogOut, Bell } from "lucide-react";
+import { Shield, User, LogOut } from "lucide-react";
 
 const AppContent = () => {
   const isMobile = useIsMobile();
@@ -93,16 +93,8 @@ const AppContent = () => {
                   <span className="hidden md:inline">{user.name}</span>
                 </div>
                 
-                {/* Notification Bell */}
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="relative flex items-center space-x-1 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400"
-                >
-                  <Bell className="w-4 h-4" />
-                  {/* Notification badge */}
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                </Button>
+                {/* Functional Notification Dropdown */}
+                <NotificationDropdown />
                 
                 <Button 
                   variant="ghost" 
