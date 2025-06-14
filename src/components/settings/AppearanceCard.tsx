@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 export const AppearanceCard: React.FC = () => {
   const { toast } = useToast();
   const [fontSize, setFontSize] = useState([16]);
-  const [animationSpeed, setAnimationSpeed] = useState([1]);
+  const [animationSpeed, setAnimationSpeed] = useState([0.6]); // Changed default to 0.6x for slower animations
   const [systemPreferences, setSystemPreferences] = useState({
     fontFamily: 'inter',
     animationStyle: 'smooth',
@@ -30,7 +30,7 @@ export const AppearanceCard: React.FC = () => {
     const savedBackgroundAnimation = localStorage.getItem('background-animation') || 'gradient';
     const savedDepartmentTheme = localStorage.getItem('department-theme') || 'default';
     const savedFontSize = parseInt(localStorage.getItem('font-size') || '16');
-    const savedAnimationSpeed = parseFloat(localStorage.getItem('animation-speed') || '1');
+    const savedAnimationSpeed = parseFloat(localStorage.getItem('animation-speed') || '0.6'); // Changed default to 0.6x
 
     // Validate department theme (only allow default, ccs or cba now)
     const validDepartmentTheme = ['default', 'ccs', 'cba'].includes(savedDepartmentTheme) ? savedDepartmentTheme : 'default';

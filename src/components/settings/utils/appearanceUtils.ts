@@ -32,40 +32,40 @@ export const applyAnimationSpeed = (speed: number) => {
   
   const cssRules = `
     * {
-      animation-duration: calc(var(--original-duration, 0.3s) * ${durationMultiplier}) !important;
-      transition-duration: calc(var(--original-transition, 0.2s) * ${durationMultiplier}) !important;
+      animation-duration: calc(var(--original-duration, 0.6s) * ${durationMultiplier}) !important;
+      transition-duration: calc(var(--original-transition, 0.4s) * ${durationMultiplier}) !important;
     }
     
     .animate-fade-in {
-      animation-duration: ${0.3 * durationMultiplier}s !important;
-    }
-    
-    .animate-slide-right {
       animation-duration: ${0.8 * durationMultiplier}s !important;
     }
     
+    .animate-slide-right {
+      animation-duration: ${1.2 * durationMultiplier}s !important;
+    }
+    
     .animate-bounce {
-      animation-duration: ${1 * durationMultiplier}s !important;
+      animation-duration: ${1.5 * durationMultiplier}s !important;
     }
     
     .animate-pulse {
-      animation-duration: ${2 * durationMultiplier}s !important;
+      animation-duration: ${3 * durationMultiplier}s !important;
     }
     
     canvas {
-      animation-duration: ${1 * durationMultiplier}s !important;
+      animation-duration: ${1.5 * durationMultiplier}s !important;
     }
     
     button, .hover\\:scale-105 {
-      transition-duration: ${0.2 * durationMultiplier}s !important;
+      transition-duration: ${0.4 * durationMultiplier}s !important;
     }
     
     .accordion-down {
-      animation-duration: ${0.2 * durationMultiplier}s !important;
+      animation-duration: ${0.4 * durationMultiplier}s !important;
     }
     
     .accordion-up {
-      animation-duration: ${0.2 * durationMultiplier}s !important;
+      animation-duration: ${0.4 * durationMultiplier}s !important;
     }
   `;
   
@@ -104,10 +104,10 @@ export const applyAnimationStyle = (style: string) => {
           transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
         }
         .animation-bouncy .animate-fade-in {
-          animation: fade-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          animation: fade-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
         .animation-bouncy .animate-slide-right {
-          animation: slide-right 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          animation: slide-right 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
         .animation-bouncy button:hover {
           transform: scale(1.1) !important;
@@ -117,8 +117,8 @@ export const applyAnimationStyle = (style: string) => {
     case 'minimal':
       cssRules = `
         .animation-minimal * {
-          animation-duration: 0.15s !important;
-          transition-duration: 0.1s !important;
+          animation-duration: 0.3s !important;
+          transition-duration: 0.2s !important;
         }
         .animation-minimal .animate-bounce {
           animation: none !important;
@@ -134,21 +134,21 @@ export const applyAnimationStyle = (style: string) => {
     case 'energetic':
       cssRules = `
         .animation-energetic * {
-          animation-duration: 0.3s !important;
-          transition-duration: 0.2s !important;
+          animation-duration: 0.5s !important;
+          transition-duration: 0.3s !important;
           animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
         }
         .animation-energetic .animate-float {
-          animation: float 1.2s ease-in-out infinite;
+          animation: float 1.8s ease-in-out infinite;
         }
         .animation-energetic .animate-glow {
-          animation: glow 0.8s ease-in-out infinite alternate;
+          animation: glow 1.2s ease-in-out infinite alternate;
         }
         .animation-energetic button:hover {
           transform: scale(1.15) rotate(2deg) !important;
         }
         .animation-energetic .animate-fade-in {
-          animation: fade-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          animation: fade-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
       `;
       break;

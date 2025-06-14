@@ -31,10 +31,11 @@ export const AnimationSpeedSlider: React.FC<AnimationSpeedSliderProps> = ({ valu
         max={3}
         min={0.1}
         step={0.1}
+        defaultValue={[0.6]}
         className="w-full"
       />
       <p className="text-xs text-gray-500">
-        Adjust how fast or slow animations play throughout the application (0.1x = very slow, 3x = very fast)
+        Adjust how fast or slow animations play throughout the application (0.1x = very slow, 3x = very fast). Default is 0.6x for natural motion.
       </p>
     </div>
   );
