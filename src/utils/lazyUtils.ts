@@ -1,10 +1,11 @@
+
 import React, { ComponentType, lazy, Suspense } from 'react';
 
 // ✅ Lazy load a component with proper TypeScript typing
 export const createLazyComponent = <T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   fallback?: React.ComponentType
-) => {
+): React.LazyExoticComponent<T> => {
   return lazy(importFn);
 };
 
@@ -58,7 +59,7 @@ export const createLazyComponentWithErrorBoundary = <T extends ComponentType<any
   importFn: () => Promise<{ default: T }>,
   fallback?: React.ReactNode,
   errorFallback?: React.ReactNode // Not used yet, placeholder for enhancement
-) => {
+): React.FC<React.ComponentProps<T>> => {
   const LazyComponent = lazy(importFn);
 
   const Wrapped = (props: React.ComponentProps<T>) => (
@@ -73,9 +74,10 @@ export const createLazyComponentWithErrorBoundary = <T extends ComponentType<any
 // ✅ Memoized lazy component creation to avoid re-creation on each render
 export const memoizedLazyComponent = <T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>
-) => {
-  const LazyComponent = React.memo(lazy(importFn));
+): React.FC<React.ComponentProps<T>> => {
+  const LazyComponent = React.memo(lazy(importFn) as T);
 
   const Wrapped = (props: React.ComponentProps<T>) => <LazyComponent {...props} />;
   return Wrapped;
 };
+
