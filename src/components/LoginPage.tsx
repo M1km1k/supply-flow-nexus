@@ -36,9 +36,9 @@ export const LoginPage: React.FC = () => {
         description: "Welcome to InventOMatic!",
       });
       
-      // Show loading screen for 2 seconds before navigating
+      // Show loading screen for 2 seconds before navigating to /dashboard
       setTimeout(() => {
-        navigate('/');
+        navigate('/dashboard');
         setIsLoading(false);
       }, 2000);
     } else {
