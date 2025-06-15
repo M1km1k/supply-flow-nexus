@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -19,44 +18,55 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Apply saved animation speed on component mount
+  const isMountedRef = useRef(true);
+
+  // Set animation speed on mount
   useEffect(() => {
+    isMountedRef.current = true;
     const savedAnimationSpeed = parseFloat(localStorage.getItem('animation-speed') || '1');
     applyAnimationSpeed(savedAnimationSpeed);
+
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return; // prevent duplicate login
+
     setIsLoading(true);
-    
     const success = await login(email, password);
+
     if (success) {
       toast({
         title: "Login Successful",
         description: "Welcome to InventOMatic!",
       });
-      
-      // Show loading screen for 2 seconds before navigating to /dashboard
+
       setTimeout(() => {
-        navigate('/dashboard');
-        setIsLoading(false);
+        if (isMountedRef.current) {
+          navigate('/dashboard');
+          setIsLoading(false);
+        }
       }, 2000);
     } else {
-      setIsLoading(false);
-      toast({
-        title: "Login Failed",
-        description: "Invalid email or password. Please try again.",
-        variant: "destructive",
-      });
+      if (isMountedRef.current) {
+        setIsLoading(false);
+        toast({
+          title: "Login Failed",
+          description: "Invalid email or password. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
-  };
+  }, [email, password, login, navigate, toast, isLoading]);
 
-  const handleSampleLogin = (account: { email: string; password: string }) => {
+  const handleSampleLogin = useCallback((account: { email: string; password: string }) => {
     setEmail(account.email);
     setPassword(account.password);
-  };
+  }, []);
 
-  // Show loading screen during login process
   if (isLoading) {
     return <LoadingScreen message="Logging you in..." />;
   }
@@ -66,7 +76,7 @@ export const LoginPage: React.FC = () => {
       <Background3D />
 
       <div className="w-full max-w-md space-y-6 relative z-20 transform-gpu">
-        {/* Logo and Title with 3D effect */}
+        {/* Logo and Title */}
         <div className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="relative transform-gpu">
@@ -86,7 +96,6 @@ export const LoginPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Login Form */}
         <LoginForm
           email={email}
           password={password}
@@ -95,7 +104,6 @@ export const LoginPage: React.FC = () => {
           onSubmit={handleLogin}
         />
 
-        {/* Sample Accounts */}
         <SampleAccounts
           showSampleAccounts={showSampleAccounts}
           onToggle={() => setShowSampleAccounts(!showSampleAccounts)}
