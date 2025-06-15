@@ -13,15 +13,17 @@ export function withSuspense<P extends object>(
   Component: ComponentType<P>,
   fallback: React.ReactNode = <div className="animate-pulse bg-gray-200 rounded h-32" />
 ): React.FC<P> {
-  return (props: P) => (
-    <Suspense fallback={fallback}>
-      <Component {...props} />
-    </Suspense>
-  );
+  return function SuspendedComponent(props: P) {
+    return (
+      <Suspense fallback={fallback}>
+        <Component {...props} />
+      </Suspense>
+    );
+  };
 }
 
 // ✅ Debounce utility for performance optimization
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: any[]) => void>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -33,7 +35,7 @@ export function debounce<T extends (...args: any[]) => any>(
 }
 
 // ✅ Throttle utility for performance optimization
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: any[]) => void>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
@@ -52,18 +54,17 @@ export function throttle<T extends (...args: any[]) => any>(
 // ✅ Enhanced lazy loading with Suspense and optional error fallback
 export function createLazyComponentWithErrorBoundary<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
-  fallback?: React.ReactNode,
-  // errorFallback?: React.ReactNode // Placeholder, not implemented
+  fallback?: React.ReactNode
 ): React.FC<React.ComponentProps<T>> {
   const LazyComponent = lazy(importFn);
 
-  const Wrapped: React.FC<React.ComponentProps<T>> = (props) => (
-    <Suspense fallback={fallback ?? <div className="animate-pulse bg-gray-200 rounded h-32" />}>
-      <LazyComponent {...props} />
-    </Suspense>
-  );
-
-  return Wrapped;
+  return function Wrapped(props: React.ComponentProps<T>) {
+    return (
+      <Suspense fallback={fallback ?? <div className="animate-pulse bg-gray-200 rounded h-32" />}>
+        <LazyComponent {...props} />
+      </Suspense>
+    );
+  };
 }
 
 // ✅ Memoized lazy component creation to avoid re-creation on each render
@@ -72,7 +73,7 @@ export function memoizedLazyComponent<T extends ComponentType<any>>(
 ): React.FC<React.ComponentProps<T>> {
   const LazyComponent = React.memo(lazy(importFn) as T);
 
-  const Wrapped: React.FC<React.ComponentProps<T>> = (props) => <LazyComponent {...props} />;
-  return Wrapped;
+  return function Wrapped(props: React.ComponentProps<T>) {
+    return <LazyComponent {...props} />;
+  };
 }
-
