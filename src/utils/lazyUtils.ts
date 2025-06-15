@@ -1,15 +1,15 @@
 
 import React, { ComponentType, lazy, Suspense } from 'react';
 
-// ✅ Lazy load a component with proper TypeScript typing
+// Create a lazy component with proper TypeScript typing
 export function createLazyComponent<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>
 ): React.LazyExoticComponent<T> {
   return lazy(importFn);
 }
 
-// ✅ Wrap component with Suspense and custom fallback
-export function withSuspense<P extends object>(
+// Wrap component with Suspense and custom fallback
+export function withSuspense<P extends Record<string, any>>(
   Component: ComponentType<P>,
   fallback: React.ReactNode = <div className="animate-pulse bg-gray-200 rounded h-32" />
 ): React.FC<P> {
@@ -22,7 +22,7 @@ export function withSuspense<P extends object>(
   };
 }
 
-// ✅ Debounce utility for performance optimization
+// Debounce utility for performance optimization
 export function debounce<T extends (...args: any[]) => void>(
   func: T,
   wait: number
@@ -34,7 +34,7 @@ export function debounce<T extends (...args: any[]) => void>(
   };
 }
 
-// ✅ Throttle utility for performance optimization
+// Throttle utility for performance optimization
 export function throttle<T extends (...args: any[]) => void>(
   func: T,
   limit: number
@@ -51,14 +51,14 @@ export function throttle<T extends (...args: any[]) => void>(
   };
 }
 
-// ✅ Enhanced lazy loading with Suspense and optional error fallback
+// Enhanced lazy loading with Suspense and optional error fallback
 export function createLazyComponentWithErrorBoundary<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   fallback?: React.ReactNode
 ): React.FC<React.ComponentProps<T>> {
   const LazyComponent = lazy(importFn);
 
-  return function Wrapped(props: React.ComponentProps<T>) {
+  return function WrappedComponent(props: React.ComponentProps<T>) {
     return (
       <Suspense fallback={fallback ?? <div className="animate-pulse bg-gray-200 rounded h-32" />}>
         <LazyComponent {...props} />
@@ -67,13 +67,13 @@ export function createLazyComponentWithErrorBoundary<T extends ComponentType<any
   };
 }
 
-// ✅ Memoized lazy component creation to avoid re-creation on each render
+// Memoized lazy component creation to avoid re-creation on each render
 export function memoizedLazyComponent<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>
 ): React.FC<React.ComponentProps<T>> {
   const LazyComponent = React.memo(lazy(importFn));
 
-  return function Wrapped(props: React.ComponentProps<T>) {
+  return function WrappedComponent(props: React.ComponentProps<T>) {
     return <LazyComponent {...props} />;
   };
 }
