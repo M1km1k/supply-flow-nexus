@@ -12,7 +12,7 @@ export function createLazyComponent<T extends ComponentType<any>>(
 export function withSuspense<P extends object>(
   Component: ComponentType<P>,
   fallback: React.ReactNode = <div className="animate-pulse bg-gray-200 rounded h-32" />
-) {
+): React.FC<P> {
   return (props: P) => (
     <Suspense fallback={fallback}>
       <Component {...props} />
@@ -75,3 +75,4 @@ export function memoizedLazyComponent<T extends ComponentType<any>>(
   const Wrapped: React.FC<React.ComponentProps<T>> = (props) => <LazyComponent {...props} />;
   return Wrapped;
 }
+
