@@ -71,7 +71,7 @@ export function createLazyComponentWithErrorBoundary<T extends ComponentType<any
 export function memoizedLazyComponent<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>
 ): React.FC<React.ComponentProps<T>> {
-  const LazyComponent = React.memo(lazy(importFn) as T);
+  const LazyComponent = React.memo(lazy(importFn));
 
   return function Wrapped(props: React.ComponentProps<T>) {
     return <LazyComponent {...props} />;
