@@ -7,12 +7,14 @@ import { Background3D } from './login/Background3D';
 import { LoginForm } from './login/LoginForm';
 import { SampleAccounts } from './login/SampleAccounts';
 import { LoginStyles } from './login/LoginStyles';
+import { LoadingScreen } from './LoadingScreen';
 import { applyAnimationSpeed } from '@/components/settings/utils/appearanceUtils';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showSampleAccounts, setShowSampleAccounts] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -32,7 +34,9 @@ export const LoginPage: React.FC = () => {
         title: "Login Successful",
         description: "Welcome to InventOMatic!",
       });
-      navigate('/');
+      
+      // Show loading screen instead of immediate navigation
+      setShowLoadingScreen(true);
     } else {
       toast({
         title: "Login Failed",
@@ -42,10 +46,19 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const handleLoadingComplete = () => {
+    navigate('/');
+  };
+
   const handleSampleLogin = (account: { email: string; password: string }) => {
     setEmail(account.email);
     setPassword(account.password);
   };
+
+  // Show loading screen if login was successful
+  if (showLoadingScreen) {
+    return <LoadingScreen onComplete={handleLoadingComplete} />;
+  }
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden perspective-1000">
