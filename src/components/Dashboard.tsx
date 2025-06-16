@@ -1,7 +1,6 @@
 
-import React, { useState, useEffect, useMemo, memo } from 'react';
+import React, { useState } from 'react';
 import { useSupply } from '@/contexts/SupplyContext';
-import { usePerformance } from '@/hooks/usePerformance';
 import { CalendarWidget } from '@/components/CalendarWidget';
 import { MiniChatbot } from '@/components/MiniChatbot';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -12,118 +11,80 @@ import { CategoryPerformanceChart } from '@/components/dashboard/CategoryPerform
 import { WeeklyTransactionChart } from '@/components/dashboard/WeeklyTransactionChart';
 import { SupplierPerformanceChart } from '@/components/dashboard/SupplierPerformanceChart';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
+import { NotificationToggle } from '@/components/dashboard/NotificationToggle';
 import { ModernNotificationSidebar } from '@/components/notifications/ModernNotificationSidebar';
 
-const MemoizedStatsGrid = memo(StatsGrid);
-const MemoizedInventoryFlowChart = memo(InventoryFlowChart);
-const MemoizedStockDistributionChart = memo(StockDistributionChart);
-const MemoizedCategoryPerformanceChart = memo(CategoryPerformanceChart);
-const MemoizedWeeklyTransactionChart = memo(WeeklyTransactionChart);
-const MemoizedSupplierPerformanceChart = memo(SupplierPerformanceChart);
-const MemoizedRecentTransactions = memo(RecentTransactions);
-const MemoizedCalendarWidget = memo(CalendarWidget);
-const MemoizedMiniChatbot = memo(MiniChatbot);
-
-export const Dashboard: React.FC = memo(() => {
-  const { inventory, suppliers, transactions, refreshData } = useSupply();
-  const { measureRender } = usePerformance();
-  
+export const Dashboard: React.FC = () => {
+  const { inventory, suppliers, transactions } = useSupply();
   const [widgetVisibility, setWidgetVisibility] = useState({
     notifications: true,
     chatbot: true,
     calendar: true
   });
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
-  const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  // Performance monitoring
-  useEffect(() => {
-    const cleanup = measureRender('Dashboard');
-    return cleanup;
-  });
+  const toggleWidget = (widget: keyof typeof widgetVisibility) => {
+    setWidgetVisibility(prev => ({
+      ...prev,
+      [widget]: !prev[widget]
+    }));
+  };
 
-  // Optimized auto-refresh with user activity detection
-  useEffect(() => {
-    let isActive = true;
-    
-    const handleVisibilityChange = () => {
-      isActive = !document.hidden;
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    const interval = setInterval(() => {
-      if (refreshData && isActive) {
-        refreshData();
-        setLastRefresh(new Date());
-        console.log('Dashboard: Auto-refreshed data at', new Date().toLocaleTimeString());
-      }
-    }, 30000);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [refreshData]);
-
-  // Memoized toggle function
-  const toggleWidget = useMemo(() => 
-    (widget: keyof typeof widgetVisibility) => {
-      setWidgetVisibility(prev => ({
-        ...prev,
-        [widget]: !prev[widget]
-      }));
-    }, []
-  );
-
-  // Memoized sidebar handlers
-  const handleNotificationSidebarClose = useMemo(() => 
-    () => setIsNotificationSidebarOpen(false), []
-  );
+  // Calculate notification count (low stock items)
+  const notificationCount = inventory.filter(item => 
+    item.status === 'Low Stock' || item.status === 'Out of Stock'
+  ).length;
 
   return (
     <div className="space-y-6 animate-fade-in relative">
-      <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
-
-      <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
-        Last updated: {lastRefresh.toLocaleTimeString()}
+      {/* Header with Notification Toggle positioned on the right */}
+      <div className="flex justify-between items-center">
+        <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
+        <div className="flex justify-end">
+          <NotificationToggle 
+            onClick={() => setIsNotificationSidebarOpen(true)}
+            notificationCount={notificationCount}
+          />
+        </div>
       </div>
 
-      <MemoizedStatsGrid inventory={inventory} suppliers={suppliers} />
+      <StatsGrid inventory={inventory} suppliers={suppliers} />
 
+      {/* Enhanced Charts Section - Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MemoizedInventoryFlowChart />
-        <MemoizedStockDistributionChart />
+        <InventoryFlowChart />
+        <StockDistributionChart />
       </div>
 
+      {/* Enhanced Charts Section - Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MemoizedCategoryPerformanceChart />
-        <MemoizedWeeklyTransactionChart />
+        <CategoryPerformanceChart />
+        <WeeklyTransactionChart />
       </div>
 
-      <MemoizedSupplierPerformanceChart />
+      <SupplierPerformanceChart />
 
+      {/* Widgets Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {widgetVisibility.chatbot && (
           <div className="animate-slide-up">
-            <MemoizedMiniChatbot />
+            <MiniChatbot />
           </div>
         )}
         {widgetVisibility.calendar && (
           <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <MemoizedCalendarWidget />
+            <CalendarWidget />
           </div>
         )}
       </div>
 
-      <MemoizedRecentTransactions transactions={transactions} inventory={inventory} />
+      <RecentTransactions transactions={transactions} inventory={inventory} />
 
+      {/* Modern Notification Sidebar */}
       <ModernNotificationSidebar 
         isOpen={isNotificationSidebarOpen}
-        onClose={handleNotificationSidebarClose}
+        onClose={() => setIsNotificationSidebarOpen(false)}
       />
     </div>
   );
-});
-
-Dashboard.displayName = 'Dashboard';
+};

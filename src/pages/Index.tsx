@@ -1,3 +1,4 @@
+
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Dashboard } from "@/components/Dashboard";
@@ -28,6 +29,7 @@ const AppContent = () => {
   // Register service worker for offline functionality
   useEffect(() => {
     if ('serviceWorker' in navigator) {
+      // Determine the correct service worker path based on environment
       const swPath = '/serviceWorker.js';
       
       navigator.serviceWorker.register(swPath)
@@ -41,12 +43,14 @@ const AppContent = () => {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                   console.log('InventOMatic: New content available, will update automatically.');
+                  // Automatically update to new version
                   newWorker.postMessage({ type: 'SKIP_WAITING' });
                 }
               });
             }
           });
 
+          // Listen for controlling service worker changes
           navigator.serviceWorker.addEventListener('controllerchange', () => {
             console.log('InventOMatic: Service worker updated, reloading page...');
             window.location.reload();
@@ -56,12 +60,15 @@ const AppContent = () => {
           console.log('InventOMatic: ServiceWorker registration failed:', err);
         });
 
+      // Handle online/offline status
       const handleOnline = () => {
         console.log('InventOMatic: Back online');
+        // Optional: Show a toast notification
       };
 
       const handleOffline = () => {
         console.log('InventOMatic: Now offline - cached content will be served');
+        // Optional: Show a toast notification
       };
 
       window.addEventListener('online', handleOnline);
@@ -80,6 +87,7 @@ const AppContent = () => {
       setBackgroundStyle(event.detail.style);
     };
 
+    // Load initial background preference
     const savedBackground = localStorage.getItem('background-animation') || 'gradient';
     setBackgroundStyle(savedBackground);
 
@@ -94,6 +102,7 @@ const AppContent = () => {
     logout();
   };
 
+  // Show login page if not authenticated
   if (!isAuthenticated) {
     return <LoginPage />;
   }
@@ -117,13 +126,14 @@ const AppContent = () => {
               <div className="flex items-center space-x-2 sm:space-x-4 animate-slide-left">
                 <Badge variant="secondary" className="hidden sm:flex">
                   <Shield className="w-3 h-3 mr-1" />
-                  {user.role?.toUpperCase() || 'USER'}
+                  {user.role.toUpperCase()}
                 </Badge>
                 <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
                   <User className="w-4 h-4" />
-                  <span className="hidden md:inline">{user.name || 'User'}</span>
+                  <span className="hidden md:inline">{user.name}</span>
                 </div>
                 
+                {/* Functional Notification Dropdown */}
                 <NotificationDropdown />
                 
                 <Button 
