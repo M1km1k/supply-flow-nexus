@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, memo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSupply } from '@/contexts/SupplyContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePerformance } from '@/hooks/usePerformance';
 import { DashboardWidgets } from './DashboardWidgets';
 import { DashboardStats } from './DashboardStats';
 import { SystemStatusFooter } from './SystemStatusFooter';
@@ -11,77 +12,156 @@ import { InventoryFlowChart } from './InventoryFlowChart';
 import { StockDistributionChart } from './StockDistributionChart';
 import { CategoryPerformanceChart } from './CategoryPerformanceChart';
 import { SupplierPerformanceChart } from './SupplierPerformanceChart';
+import { NotificationSidebar } from './NotificationSidebar';
+import { NotificationToggle } from './NotificationToggle';
 
-export const ModularDashboard: React.FC = () => {
-  const { inventory, suppliers, transactions } = useSupply();
+const MemoizedDashboardStats = memo(DashboardStats);
+const MemoizedDashboardWidgets = memo(DashboardWidgets);
+const MemoizedInventoryFlowChart = memo(InventoryFlowChart);
+const MemoizedStockDistributionChart = memo(StockDistributionChart);
+const MemoizedCategoryPerformanceChart = memo(CategoryPerformanceChart);
+const MemoizedSupplierPerformanceChart = memo(SupplierPerformanceChart);
+
+export const ModularDashboard: React.FC = memo(() => {
+  const { inventory, suppliers, transactions, refreshData } = useSupply();
   const { user, hasPermission, isAdmin, isStaff } = useAuth();
+  const { measureRender } = usePerformance();
+  
   const [visibleWidgets, setVisibleWidgets] = useState<string[]>(
     isStaff() ? [] : ['predictive-analytics']
   );
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  const toggleWidget = (widgetId: string) => {
+  // Performance monitoring
+  useEffect(() => {
+    const cleanup = measureRender('ModularDashboard');
+    return cleanup;
+  });
+
+  // Optimized auto-refresh
+  useEffect(() => {
+    let isActive = true;
+    
+    const handleVisibilityChange = () => {
+      isActive = !document.hidden;
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    const interval = setInterval(() => {
+      if (refreshData && isActive) {
+        refreshData();
+        setLastRefresh(new Date());
+        console.log('ModularDashboard: Auto-refreshed data at', new Date().toLocaleTimeString());
+      }
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refreshData]);
+
+  // Memoized toggle functions
+  const toggleWidget = useCallback((widgetId: string) => {
     setVisibleWidgets(prev => 
       prev.includes(widgetId) 
         ? prev.filter(id => id !== widgetId)
         : [...prev, widgetId]
     );
-  };
+  }, []);
+
+  const handleNotificationToggle = useCallback(() => {
+    setIsNotificationSidebarOpen(true);
+  }, []);
+
+  const handleNotificationClose = useCallback(() => {
+    setIsNotificationSidebarOpen(false);
+  }, []);
+
+  const handleCategoryChange = useCallback((category: string) => {
+    setSelectedCategory(category);
+  }, []);
+
+  // Memoized notification count
+  const notificationCount = useMemo(() => 
+    inventory.filter(item => 
+      item.status === 'Low Stock' || item.status === 'Out of Stock'
+    ).length,
+    [inventory]
+  );
+
+  // Memoized user badges
+  const userBadges = useMemo(() => (
+    <div className="flex items-center space-x-2 mt-2">
+      <Badge variant="secondary" className="animate-slide-right" style={{ animationDelay: '0.1s' }}>
+        {user?.role?.toUpperCase() || 'USER'}
+      </Badge>
+      <Badge variant="outline" className="animate-slide-right" style={{ animationDelay: '0.2s' }}>
+        {user?.department || 'General'}
+      </Badge>
+      {isStaff() && (
+        <Badge variant="destructive" className="animate-slide-right" style={{ animationDelay: '0.3s' }}>
+          LIMITED ACCESS
+        </Badge>
+      )}
+    </div>
+  ), [user, isStaff]);
+
+  // Memoized category buttons
+  const categoryButtons = useMemo(() => 
+    !isStaff() && (
+      <div className="flex space-x-1">
+        {['all', 'analytics', 'operations', 'management', 'security'].map((category) => (
+          <Button
+            key={category}
+            variant={selectedCategory === category ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => handleCategoryChange(category)}
+            className="animate-bounce-in"
+          >
+            {category.charAt(0).toUpperCase() + category.slice(1)}
+          </Button>
+        ))}
+      </div>
+    ),
+    [isStaff, selectedCategory, handleCategoryChange]
+  );
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header with User Info */}
+    <div className="space-y-6 animate-fade-in relative">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white animate-slide-right">
-            Welcome back, {user?.name}
+            Welcome back, {user?.name || 'User'}
           </h1>
-          <div className="flex items-center space-x-2 mt-2">
-            <Badge variant="secondary" className="animate-slide-right" style={{ animationDelay: '0.1s' }}>
-              {user?.role?.toUpperCase()}
-            </Badge>
-            <Badge variant="outline" className="animate-slide-right" style={{ animationDelay: '0.2s' }}>
-              {user?.department}
-            </Badge>
-            {isStaff() && (
-              <Badge variant="destructive" className="animate-slide-right" style={{ animationDelay: '0.3s' }}>
-                LIMITED ACCESS
-              </Badge>
-            )}
-          </div>
+          {userBadges}
         </div>
 
-        {/* Widget Controls - Hidden for staff */}
-        {!isStaff() && (
-          <div className="flex space-x-2">
-            <div className="flex space-x-1">
-              {['all', 'analytics', 'operations', 'management', 'security'].map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className="animate-bounce-in"
-                >
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
+        <div className="flex items-center space-x-4">
+          <NotificationToggle 
+            onClick={handleNotificationToggle}
+            notificationCount={notificationCount}
+          />
+          {categoryButtons}
+        </div>
       </div>
 
-      {/* Enhanced Stats Grid */}
-      <DashboardStats 
+      <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
+        Last updated: {lastRefresh.toLocaleTimeString()}
+      </div>
+
+      <MemoizedDashboardStats 
         inventory={inventory}
         suppliers={suppliers}
         hasPermission={hasPermission}
         isAdmin={isAdmin}
       />
 
-      {/* Dashboard Widgets - Hidden for staff */}
       {!isStaff() && (
-        <DashboardWidgets
+        <MemoizedDashboardWidgets
           visibleWidgets={visibleWidgets}
           selectedCategory={selectedCategory}
           userRole={user?.role || ''}
@@ -89,24 +169,20 @@ export const ModularDashboard: React.FC = () => {
         />
       )}
 
-      {/* Charts Section - Limited for staff */}
       {!isStaff() && (
         <>
-          {/* Charts Section - Row 1 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <InventoryFlowChart />
-            <StockDistributionChart />
+            <MemoizedInventoryFlowChart />
+            <MemoizedStockDistributionChart />
           </div>
 
-          {/* Charts Section - Row 2 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <CategoryPerformanceChart />
-            <SupplierPerformanceChart />
+            <MemoizedCategoryPerformanceChart />
+            <MemoizedSupplierPerformanceChart />
           </div>
         </>
       )}
 
-      {/* Staff get a simple message instead of charts */}
       {isStaff() && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
           <h3 className="text-lg font-semibold text-yellow-800 mb-2">Limited Access Account</h3>
@@ -117,8 +193,14 @@ export const ModularDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* System Status Footer */}
       <SystemStatusFooter />
+
+      <NotificationSidebar 
+        isOpen={isNotificationSidebarOpen}
+        onClose={handleNotificationClose}
+      />
     </div>
   );
-};
+});
+
+ModularDashboard.displayName = 'ModularDashboard';

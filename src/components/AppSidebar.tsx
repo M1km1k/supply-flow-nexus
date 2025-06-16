@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+
+import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -15,12 +16,10 @@ import {
   Calendar, 
   Settings, 
   Users,
-  Check,
   Package,
   ArrowUpDown,
   FileText,
   Home,
-  GripVertical
 } from "lucide-react";
 
 const menuItems = [
@@ -36,126 +35,92 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const [sidebarWidth, setSidebarWidth] = useState(280);
-  const [isResizing, setIsResizing] = useState(false);
-  const [resizeStartX, setResizeStartX] = useState(0);
-  const [resizeStartWidth, setResizeStartWidth] = useState(280);
-  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => {
     if (path === "/") return currentPath === "/";
     return currentPath.startsWith(path);
   };
 
-  const handleResizeStart = (e: React.MouseEvent) => {
-    setIsResizing(true);
-    setResizeStartX(e.clientX);
-    setResizeStartWidth(sidebarWidth);
-    e.preventDefault();
-  };
-
-  const handleResizeMove = (e: MouseEvent) => {
-    if (isResizing) {
-      const deltaX = e.clientX - resizeStartX;
-      const newWidth = resizeStartWidth + deltaX;
-      
-      // Constrain width between 200px and 500px
-      const constrainedWidth = Math.max(200, Math.min(newWidth, 500));
-      setSidebarWidth(constrainedWidth);
-    }
-  };
-
-  const handleResizeEnd = () => {
-    setIsResizing(false);
-  };
-
-  // Add global mouse events for resizing
-  React.useEffect(() => {
-    if (isResizing) {
-      document.addEventListener('mousemove', handleResizeMove);
-      document.addEventListener('mouseup', handleResizeEnd);
-      return () => {
-        document.removeEventListener('mousemove', handleResizeMove);
-        document.removeEventListener('mouseup', handleResizeEnd);
-      };
-    }
-  }, [isResizing, resizeStartX, resizeStartWidth]);
-
   return (
-    <Sidebar 
-      ref={sidebarRef}
-      className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl animate-slide-right h-screen"
-      style={{
-        width: `${sidebarWidth}px`,
-        minWidth: `${sidebarWidth}px`,
-        maxWidth: `${sidebarWidth}px`,
-        transition: isResizing ? 'none' : 'width 0.2s ease-out',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 50,
-        height: '100vh'
-      }}
-    >
+    <Sidebar className="border-r bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl transition-all duration-500 ease-in-out">
       <SidebarContent className="h-full">
-        <div className="p-6 animate-fade-in">
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group">
-              <img 
-                src="/lovable-uploads/4322b65b-5e4b-43e8-b601-f7bd229fcd71.png" 
-                alt="InventOMatic Logo" 
-                className="w-12 h-12 rounded-xl object-cover animate-float group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 hover:animate-glow"
-              />
-            </div>
-            <div className="animate-slide-right flex-1">
-              <h2 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">InventOMatic</h2>
-              <p className="text-xs text-gray-600 dark:text-gray-400 animate-fade-in">Inventory Management</p>
-            </div>
+        {/* Header with enhanced animations */}
+        <div className="p-4 border-b flex items-center space-x-3 transition-all duration-300 ease-in-out">
+          <div className="relative">
+            <img 
+              src="/lovable-uploads/4322b65b-5e4b-43e8-b601-f7bd229fcd71.png" 
+              alt="InventOMatic Logo" 
+              className="w-8 h-8 rounded-lg object-cover transition-transform duration-300 hover:scale-110 hover:rotate-3"
+            />
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-0 hover:opacity-30 transition-opacity duration-300"></div>
           </div>
+          {state === "expanded" && (
+            <h2 className="font-bold text-sm bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-fade-in transition-all duration-500">
+              InventOMatic
+            </h2>
+          )}
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="animate-fade-in text-gray-700 dark:text-gray-300 px-4 mb-2">Navigation</SidebarGroupLabel>
+          {state === "expanded" && (
+            <SidebarGroupLabel className="text-gray-700 dark:text-gray-300 px-4 mb-2 animate-fade-in transition-all duration-300">
+              Navigation
+            </SidebarGroupLabel>
+          )}
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item, index) => (
-                <SidebarMenuItem key={item.title} className="animate-slide-right px-2" style={{ animationDelay: `${index * 0.1}s` }}>
+                <SidebarMenuItem key={item.title} className="px-2">
                   <SidebarMenuButton asChild className="w-full h-auto p-0">
                     <NavLink
                       to={item.url}
                       className={({ isActive: linkActive }) =>
-                        `flex items-center space-x-4 px-4 py-4 mx-2 rounded-xl transition-all duration-300 group hover:scale-105 relative overflow-hidden ${
+                        `flex items-center ${state === "expanded" ? 'space-x-3' : 'justify-center'} px-3 py-3 mx-1 rounded-xl transition-all duration-500 ease-in-out group hover:scale-105 relative overflow-hidden transform hover:-translate-y-1 hover:shadow-lg ${
                           isActive(item.url)
-                            ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105"
+                            ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105 animate-pulse"
                             : "text-black dark:text-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:text-black dark:hover:text-gray-100"
                         }`
                       }
+                      style={{
+                        animationDelay: `${index * 100}ms`,
+                        animationFillMode: 'both'
+                      }}
+                      title={state === "collapsed" ? item.title : undefined}
                     >
-                      {/* Animated background effect */}
-                      <div className={`absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isActive(item.url) ? 'opacity-100' : ''}`} />
+                      {/* Background ripple effect */}
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-all duration-500 transform scale-0 group-hover:scale-100"></div>
                       
                       {/* Icon with enhanced animations */}
-                      <div className="relative z-10">
-                        <item.icon className={`w-6 h-6 transition-all duration-300 ${
+                      <div className="relative z-10 transition-all duration-300 group-hover:rotate-12">
+                        <item.icon className={`w-5 h-5 transition-all duration-500 transform group-hover:scale-110 ${
                           isActive(item.url) 
-                            ? "animate-bounce drop-shadow-lg text-white" 
-                            : "group-hover:scale-125 group-hover:rotate-12 group-hover:drop-shadow-md text-black dark:text-gray-200"
+                            ? "text-white drop-shadow-lg" 
+                            : "text-black dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400"
                         }`} />
                       </div>
                       
-                      {/* Text with enhanced animations - always black in light mode */}
-                      <span className={`font-medium text-base transition-all duration-300 relative z-10 ${
-                        isActive(item.url) 
-                          ? "animate-pulse drop-shadow-lg text-white" 
-                          : "group-hover:translate-x-2 group-hover:font-semibold text-black dark:text-gray-200"
-                      }`}>
-                        {item.title}
-                      </span>
-                      
-                      {/* Animated indicator */}
-                      {isActive(item.url) && (
-                        <div className="absolute right-2 w-2 h-2 bg-white rounded-full animate-ping" />
+                      {/* Text with slide animation */}
+                      {state === "expanded" && (
+                        <span className={`font-medium text-sm transition-all duration-500 relative z-10 transform ${
+                          isActive(item.url) 
+                            ? "text-white drop-shadow-sm" 
+                            : "text-black dark:text-gray-200 group-hover:translate-x-1"
+                        }`}>
+                          {item.title}
+                        </span>
                       )}
+                      
+                      {/* Active indicator with animation */}
+                      {isActive(item.url) && (
+                        <>
+                          <div className="absolute right-2 w-2 h-2 bg-white rounded-full animate-ping" />
+                          <div className="absolute right-2 w-2 h-2 bg-white rounded-full" />
+                          <div className="absolute left-0 w-1 h-full bg-white rounded-r-full animate-pulse" />
+                        </>
+                      )}
+
+                      {/* Hover glow effect */}
+                      <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -164,43 +129,24 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="mt-auto p-6 animate-fade-in">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-100/20 to-purple-100/20 animate-pulse" />
-            
-            <div className="animate-slide-up relative z-10">
-              <h3 className="font-semibold text-sm text-gray-800 dark:text-white mb-3">System Status</h3>
-              <div className="flex items-center justify-center space-x-3">
+        {/* Enhanced footer with animations */}
+        {state === "expanded" && (
+          <div className="mt-auto p-4 animate-fade-in transition-all duration-700">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300 hover:shadow-lg border border-blue-100/50 dark:border-blue-800/50">
+              <h3 className="font-semibold text-xs text-gray-800 dark:text-white mb-2 animate-fade-in">System Status</h3>
+              <div className="flex items-center justify-center space-x-2">
                 <div className="relative">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                  <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75" />
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <div className="absolute inset-0 w-2 h-2 bg-green-400 rounded-full animate-ping" />
                 </div>
-                <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">All Systems Operational</span>
+                <span className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">Operational</span>
               </div>
-              
-              <div className="mt-3 flex justify-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Online</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Synced</span>
-                </div>
-              </div>
+              {/* Subtle background animation */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-100/20 to-purple-100/20 opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
             </div>
           </div>
-        </div>
+        )}
       </SidebarContent>
-
-      <div
-        className="absolute top-0 right-0 w-1 h-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 dark:hover:bg-blue-400 cursor-col-resize transition-colors duration-200 opacity-0 hover:opacity-100 group"
-        onMouseDown={handleResizeStart}
-      >
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <GripVertical className="w-4 h-4 text-white" />
-        </div>
-      </div>
     </Sidebar>
   );
 }

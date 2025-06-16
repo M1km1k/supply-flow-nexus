@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 export interface InventoryItem {
   id: string;
@@ -11,6 +10,7 @@ export interface InventoryItem {
   status: 'In Stock' | 'Low Stock' | 'Out of Stock';
   category?: string;
   minThreshold?: number;
+  unitPrice?: number;
 }
 
 export interface Supplier {
@@ -63,6 +63,7 @@ interface SupplyContextType {
   triggerAutomationRules: (trigger: string, context: any) => void;
   generatePredictiveReport: () => any;
   getInventoryTrends: () => any[];
+  refreshData: () => void;
 }
 
 const SupplyContext = createContext<SupplyContextType | undefined>(undefined);
@@ -88,19 +89,41 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
-  const addAuditLog = (log: Omit<AuditLog, 'id' | 'timestamp'>) => {
+  // Performance: Memoize expensive calculations
+  const inventoryStats = useMemo(() => ({
+    totalItems: inventory.length,
+    lowStockItems: inventory.filter(item => item.status === 'Low Stock').length,
+    outOfStockItems: inventory.filter(item => item.status === 'Out of Stock').length,
+    totalValue: inventory.reduce((sum, item) => sum + (item.quantity * (item.unitPrice || 0)), 0)
+  }), [inventory]);
+
+  // Performance: Add refreshData method
+  const refreshData = useCallback(() => {
+    // Simulate data refresh - in a real app this would fetch from API
+    console.log('Refreshing data...', new Date().toISOString());
+    
+    // Update inventory status based on current quantities
+    setInventory(prev => prev.map(item => ({
+      ...item,
+      status: item.quantity === 0 ? 'Out of Stock' : 
+              item.quantity <= lowStockThreshold ? 'Low Stock' : 'In Stock'
+    })));
+  }, [lowStockThreshold]);
+
+  // Performance: Memoize audit log function
+  const addAuditLog = useCallback((log: Omit<AuditLog, 'id' | 'timestamp'>) => {
     const newLog: AuditLog = {
       ...log,
       id: generateId(),
       timestamp: new Date().toISOString(),
     };
-    setAuditLogs(prev => [newLog, ...prev]);
-  };
+    setAuditLogs(prev => [newLog, ...prev.slice(0, 99)]); // Limit to 100 logs for performance
+  }, []);
 
-  const triggerAutomationRules = (trigger: string, context: any) => {
+  // Performance: Memoize automation rules
+  const triggerAutomationRules = useCallback((trigger: string, context: any) => {
     console.log(`Automation trigger: ${trigger}`, context);
     
-    // Add audit log for automation events
     addAuditLog({
       action: 'Automation Triggered',
       user: 'System',
@@ -108,14 +131,13 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
       category: 'system'
     });
 
-    // Simulate automation actions
     if (trigger === 'low_stock' && context.item) {
-      // Auto-generate reorder recommendation
       console.log(`Low stock alert for ${context.item.name} - Current: ${context.item.quantity}`);
     }
-  };
+  }, [addAuditLog]);
 
-  const generatePredictiveReport = () => {
+  // Performance: Memoize predictive report
+  const generatePredictiveReport = useCallback(() => {
     const trends = getInventoryTrends();
     const lowStockPredictions = inventory
       .filter(item => item.quantity <= lowStockThreshold * 1.5)
@@ -133,10 +155,10 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
       predictions: lowStockPredictions,
       generatedAt: new Date().toISOString()
     };
-  };
+  }, [inventory, lowStockThreshold]);
 
-  const getInventoryTrends = () => {
-    // Simulate trend analysis based on transactions
+  // Performance: Memoize inventory trends
+  const getInventoryTrends = useCallback(() => {
     const last6Months = Array.from({ length: 6 }, (_, i) => {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
@@ -148,12 +170,12 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
         month: date.toLocaleDateString('en-US', { month: 'short' }),
         inbound: monthTransactions.filter(t => t.type === 'inbound').length,
         outbound: monthTransactions.filter(t => t.type === 'outbound').length,
-        value: Math.floor(Math.random() * 10000) + 5000 // Mock value
+        value: Math.floor(Math.random() * 10000) + 5000
       };
     }).reverse();
 
     return last6Months;
-  };
+  }, [transactions]);
 
   const calculateStockoutDate = (item: InventoryItem): string => {
     // Simple prediction based on average consumption
@@ -172,7 +194,8 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
     return reorderDate.toISOString().split('T')[0];
   };
 
-  const addInventoryItem = (item: Omit<InventoryItem, 'id'>) => {
+  // Performance: Memoize inventory operations
+  const addInventoryItem = useCallback((item: Omit<InventoryItem, 'id'>) => {
     const newItem: InventoryItem = { ...item, id: generateId() };
     setInventory(prev => [...prev, newItem]);
     addAuditLog({
@@ -183,11 +206,10 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
       category: 'inventory'
     });
 
-    // Trigger automation for new items
     triggerAutomationRules('new_item', { item: newItem });
-  };
+  }, [addAuditLog, triggerAutomationRules]);
 
-  const updateInventoryItem = (id: string, itemUpdate: Partial<InventoryItem>) => {
+  const updateInventoryItem = useCallback((id: string, itemUpdate: Partial<InventoryItem>) => {
     const oldItem = inventory.find(i => i.id === id);
     setInventory(prev => prev.map(item => 
       item.id === id ? { ...item, ...itemUpdate } : item
@@ -204,19 +226,17 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
         category: 'inventory'
       });
 
-      // Check for low stock automation triggers
       if (updatedItem.quantity <= lowStockThreshold && oldItem.quantity > lowStockThreshold) {
         triggerAutomationRules('low_stock', { item: updatedItem });
       }
 
-      // Check for out of stock triggers
       if (updatedItem.quantity === 0 && oldItem.quantity > 0) {
         triggerAutomationRules('out_of_stock', { item: updatedItem });
       }
     }
-  };
+  }, [inventory, lowStockThreshold, addAuditLog, triggerAutomationRules]);
 
-  const deleteInventoryItem = (id: string) => {
+  const deleteInventoryItem = useCallback((id: string) => {
     const item = inventory.find(i => i.id === id);
     setInventory(prev => prev.filter(item => item.id !== id));
     if (item) {
@@ -228,9 +248,10 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
         category: 'inventory'
       });
     }
-  };
+  }, [inventory, addAuditLog]);
 
-  const addSupplier = (supplier: Omit<Supplier, 'id'>) => {
+  // Performance: Memoize supplier operations
+  const addSupplier = useCallback((supplier: Omit<Supplier, 'id'>) => {
     const newSupplier: Supplier = { ...supplier, id: generateId() };
     setSuppliers(prev => [...prev, newSupplier]);
     addAuditLog({
@@ -239,9 +260,9 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
       details: `Added new supplier: ${supplier.name}`,
       category: 'supplier'
     });
-  };
+  }, [addAuditLog]);
 
-  const updateSupplier = (id: string, supplierUpdate: Partial<Supplier>) => {
+  const updateSupplier = useCallback((id: string, supplierUpdate: Partial<Supplier>) => {
     setSuppliers(prev => prev.map(supplier => 
       supplier.id === id ? { ...supplier, ...supplierUpdate } : supplier
     ));
@@ -254,9 +275,9 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
         category: 'supplier'
       });
     }
-  };
+  }, [suppliers, addAuditLog]);
 
-  const deleteSupplier = (id: string) => {
+  const deleteSupplier = useCallback((id: string) => {
     const supplier = suppliers.find(s => s.id === id);
     setSuppliers(prev => prev.filter(supplier => supplier.id !== id));
     if (supplier) {
@@ -267,13 +288,12 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
         category: 'supplier'
       });
     }
-  };
+  }, [suppliers, addAuditLog]);
 
-  const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
+  const addTransaction = useCallback((transaction: Omit<Transaction, 'id'>) => {
     const newTransaction: Transaction = { ...transaction, id: generateId() };
-    setTransactions(prev => [newTransaction, ...prev]);
+    setTransactions(prev => [newTransaction, ...prev.slice(0, 499)]); // Limit transactions for performance
 
-    // Update inventory based on transaction
     if (transaction.type === 'inbound') {
       updateInventoryItem(transaction.itemId, {
         quantity: inventory.find(i => i.id === transaction.itemId)?.quantity! + transaction.quantity,
@@ -297,37 +317,65 @@ export const SupplyContextProvider: React.FC<{ children: React.ReactNode }> = ({
       itemAffected: transaction.itemName,
       category: 'transaction'
     });
-  };
+  }, [inventory, lowStockThreshold, updateInventoryItem, addAuditLog]);
 
-  // Update item status based on quantity changes
+  // Performance: Optimized status update effect
   useEffect(() => {
-    setInventory(prev => prev.map(item => ({
-      ...item,
-      status: item.quantity === 0 ? 'Out of Stock' : 
-              item.quantity <= lowStockThreshold ? 'Low Stock' : 'In Stock'
-    })));
+    const timeoutId = setTimeout(() => {
+      setInventory(prev => prev.map(item => ({
+        ...item,
+        status: item.quantity === 0 ? 'Out of Stock' : 
+                item.quantity <= lowStockThreshold ? 'Low Stock' : 'In Stock'
+      })));
+    }, 100); // Debounce updates
+
+    return () => clearTimeout(timeoutId);
   }, [lowStockThreshold]);
 
+  // Performance: Memoize context value
+  const contextValue = useMemo(() => ({
+    inventory,
+    suppliers,
+    transactions,
+    auditLogs,
+    addInventoryItem,
+    updateInventoryItem,
+    deleteInventoryItem,
+    addSupplier,
+    updateSupplier,
+    deleteSupplier,
+    addTransaction,
+    addAuditLog,
+    lowStockThreshold,
+    setLowStockThreshold,
+    triggerAutomationRules,
+    generatePredictiveReport,
+    getInventoryTrends,
+    refreshData,
+    inventoryStats
+  }), [
+    inventory,
+    suppliers,
+    transactions,
+    auditLogs,
+    addInventoryItem,
+    updateInventoryItem,
+    deleteInventoryItem,
+    addSupplier,
+    updateSupplier,
+    deleteSupplier,
+    addTransaction,
+    addAuditLog,
+    lowStockThreshold,
+    triggerAutomationRules,
+    generatePredictiveReport,
+    getInventoryTrends,
+    refreshData,
+    inventoryStats
+  ]);
+
   return (
-    <SupplyContext.Provider value={{
-      inventory,
-      suppliers,
-      transactions,
-      auditLogs,
-      addInventoryItem,
-      updateInventoryItem,
-      deleteInventoryItem,
-      addSupplier,
-      updateSupplier,
-      deleteSupplier,
-      addTransaction,
-      addAuditLog,
-      lowStockThreshold,
-      setLowStockThreshold,
-      triggerAutomationRules,
-      generatePredictiveReport,
-      getInventoryTrends,
-    }}>
+    <SupplyContext.Provider value={contextValue}>
       {children}
     </SupplyContext.Provider>
   );

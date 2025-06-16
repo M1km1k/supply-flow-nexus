@@ -7,14 +7,12 @@ import { Background3D } from './login/Background3D';
 import { LoginForm } from './login/LoginForm';
 import { SampleAccounts } from './login/SampleAccounts';
 import { LoginStyles } from './login/LoginStyles';
-import { LoadingScreen } from './LoadingScreen';
 import { applyAnimationSpeed } from '@/components/settings/utils/appearanceUtils';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showSampleAccounts, setShowSampleAccounts] = useState(false);
-  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -28,20 +26,14 @@ export const LoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Attempting login with:', email);
-    
     const success = await login(email, password);
     if (success) {
-      console.log('Login successful, showing loading screen');
       toast({
         title: "Login Successful",
         description: "Welcome to InventOMatic!",
       });
-      
-      // Show loading screen
-      setShowLoadingScreen(true);
+      navigate('/');
     } else {
-      console.log('Login failed');
       toast({
         title: "Login Failed",
         description: "Invalid email or password. Please try again.",
@@ -50,24 +42,11 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleLoadingComplete = () => {
-    console.log('Loading complete, navigating to dashboard');
-    navigate('/');
-  };
-
   const handleSampleLogin = (account: { email: string; password: string }) => {
-    console.log('Sample account selected:', account.email);
     setEmail(account.email);
     setPassword(account.password);
   };
 
-  // Show loading screen if login was successful
-  if (showLoadingScreen) {
-    console.log('Rendering loading screen');
-    return <LoadingScreen onComplete={handleLoadingComplete} />;
-  }
-
-  console.log('Rendering login page');
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden perspective-1000">
       <Background3D />

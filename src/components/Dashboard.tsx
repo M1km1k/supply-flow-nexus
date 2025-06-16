@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import { useSupply } from '@/contexts/SupplyContext';
+import { usePerformance } from '@/hooks/usePerformance';
 import { CalendarWidget } from '@/components/CalendarWidget';
-import { NotificationPanel } from '@/components/NotificationPanel';
 import { MiniChatbot } from '@/components/MiniChatbot';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { StatsGrid } from '@/components/dashboard/StatsGrid';
@@ -12,62 +12,118 @@ import { CategoryPerformanceChart } from '@/components/dashboard/CategoryPerform
 import { WeeklyTransactionChart } from '@/components/dashboard/WeeklyTransactionChart';
 import { SupplierPerformanceChart } from '@/components/dashboard/SupplierPerformanceChart';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
+import { ModernNotificationSidebar } from '@/components/notifications/ModernNotificationSidebar';
 
-export const Dashboard: React.FC = () => {
-  const { inventory, suppliers, transactions } = useSupply();
+const MemoizedStatsGrid = memo(StatsGrid);
+const MemoizedInventoryFlowChart = memo(InventoryFlowChart);
+const MemoizedStockDistributionChart = memo(StockDistributionChart);
+const MemoizedCategoryPerformanceChart = memo(CategoryPerformanceChart);
+const MemoizedWeeklyTransactionChart = memo(WeeklyTransactionChart);
+const MemoizedSupplierPerformanceChart = memo(SupplierPerformanceChart);
+const MemoizedRecentTransactions = memo(RecentTransactions);
+const MemoizedCalendarWidget = memo(CalendarWidget);
+const MemoizedMiniChatbot = memo(MiniChatbot);
+
+export const Dashboard: React.FC = memo(() => {
+  const { inventory, suppliers, transactions, refreshData } = useSupply();
+  const { measureRender } = usePerformance();
+  
   const [widgetVisibility, setWidgetVisibility] = useState({
     notifications: true,
     chatbot: true,
     calendar: true
   });
+  const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  const toggleWidget = (widget: keyof typeof widgetVisibility) => {
-    setWidgetVisibility(prev => ({
-      ...prev,
-      [widget]: !prev[widget]
-    }));
-  };
+  // Performance monitoring
+  useEffect(() => {
+    const cleanup = measureRender('Dashboard');
+    return cleanup;
+  });
+
+  // Optimized auto-refresh with user activity detection
+  useEffect(() => {
+    let isActive = true;
+    
+    const handleVisibilityChange = () => {
+      isActive = !document.hidden;
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    const interval = setInterval(() => {
+      if (refreshData && isActive) {
+        refreshData();
+        setLastRefresh(new Date());
+        console.log('Dashboard: Auto-refreshed data at', new Date().toLocaleTimeString());
+      }
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refreshData]);
+
+  // Memoized toggle function
+  const toggleWidget = useMemo(() => 
+    (widget: keyof typeof widgetVisibility) => {
+      setWidgetVisibility(prev => ({
+        ...prev,
+        [widget]: !prev[widget]
+      }));
+    }, []
+  );
+
+  // Memoized sidebar handlers
+  const handleNotificationSidebarClose = useMemo(() => 
+    () => setIsNotificationSidebarOpen(false), []
+  );
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in relative">
       <DashboardHeader widgetVisibility={widgetVisibility} toggleWidget={toggleWidget} />
 
-      <StatsGrid inventory={inventory} suppliers={suppliers} />
-
-      {/* Enhanced Charts Section - Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <InventoryFlowChart />
-        <StockDistributionChart />
+      <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
+        Last updated: {lastRefresh.toLocaleTimeString()}
       </div>
 
-      {/* Enhanced Charts Section - Row 2 */}
+      <MemoizedStatsGrid inventory={inventory} suppliers={suppliers} />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CategoryPerformanceChart />
-        <WeeklyTransactionChart />
+        <MemoizedInventoryFlowChart />
+        <MemoizedStockDistributionChart />
       </div>
 
-      <SupplierPerformanceChart />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MemoizedCategoryPerformanceChart />
+        <MemoizedWeeklyTransactionChart />
+      </div>
 
-      {/* Widgets Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {widgetVisibility.notifications && (
-          <div className="animate-slide-up">
-            <NotificationPanel />
-          </div>
-        )}
+      <MemoizedSupplierPerformanceChart />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {widgetVisibility.chatbot && (
-          <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <MiniChatbot />
+          <div className="animate-slide-up">
+            <MemoizedMiniChatbot />
           </div>
         )}
         {widgetVisibility.calendar && (
-          <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <CalendarWidget />
+          <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <MemoizedCalendarWidget />
           </div>
         )}
       </div>
 
-      <RecentTransactions transactions={transactions} inventory={inventory} />
+      <MemoizedRecentTransactions transactions={transactions} inventory={inventory} />
+
+      <ModernNotificationSidebar 
+        isOpen={isNotificationSidebarOpen}
+        onClose={handleNotificationSidebarClose}
+      />
     </div>
   );
-};
+});
+
+Dashboard.displayName = 'Dashboard';

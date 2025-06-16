@@ -1,6 +1,4 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useSupply } from '@/contexts/SupplyContext';
@@ -120,87 +118,79 @@ Best regards
   };
 
   return (
-    <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-none rounded-none h-full">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold text-gray-800 dark:text-white">
-          Help & Information
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-3">
-          <div>
-            <h4 className="font-medium text-gray-800 dark:text-white">System Version</h4>
-            <p className="text-sm text-gray-600 dark:text-gray-300">InventOMatic v2.1.0</p>
-          </div>
-          
-          <div>
-            <h4 className="font-medium text-gray-800 dark:text-white">Last Updated</h4>
-            <p className="text-sm text-gray-600 dark:text-gray-300">{new Date().toLocaleDateString()}</p>
-          </div>
-          
-          <div>
-            <h4 className="font-medium text-gray-800 dark:text-white">Support</h4>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              For technical support, contact: support@inventomatic.com
-            </p>
-          </div>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <h4 className="font-medium text-gray-800 dark:text-white mb-1">System Version</h4>
+          <p className="text-gray-600 dark:text-gray-300">InventOMatic v2.1.0</p>
         </div>
+        
+        <div>
+          <h4 className="font-medium text-gray-800 dark:text-white mb-1">Last Updated</h4>
+          <p className="text-gray-600 dark:text-gray-300">{new Date().toLocaleDateString()}</p>
+        </div>
+        
+        <div className="sm:col-span-2">
+          <h4 className="font-medium text-gray-800 dark:text-white mb-1">Support</h4>
+          <p className="text-gray-600 dark:text-gray-300">
+            For technical support, contact: support@inventomatic.com
+          </p>
+        </div>
+      </div>
 
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-          <h4 className="font-medium text-gray-800 dark:text-white mb-3">Quick Actions</h4>
-          <div className="space-y-2">
+      <div className="space-y-4">
+        <h4 className="font-medium text-gray-800 dark:text-white">Quick Actions</h4>
+        
+        <Button 
+          variant="outline" 
+          className="w-full justify-start hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200"
+          onClick={handleExportData}
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Export System Data
+        </Button>
+        
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">Report Format</Label>
+          <div className="flex space-x-2">
             <Button 
-              variant="outline" 
-              className="w-full justify-start hover:scale-105 transition-transform"
-              onClick={handleExportData}
+              variant={reportFormat === 'txt' ? "default" : "outline"}
+              size="sm"
+              onClick={() => setReportFormat('txt')}
+              className="flex-1"
             >
-              <Download className="w-4 h-4 mr-2" />
-              Export System Data
+              <FileText className="w-4 h-4 mr-2" />
+              Text (.txt)
             </Button>
-            
-            <div className="space-y-2">
-              <Label>Report Format</Label>
-              <div className="flex space-x-2 mb-2">
-                <Button 
-                  variant={reportFormat === 'txt' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setReportFormat('txt')}
-                  className="flex-1"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Text File (.txt)
-                </Button>
-                <Button 
-                  variant={reportFormat === 'csv' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setReportFormat('csv')}
-                  className="flex-1"
-                >
-                  <FileDown className="w-4 h-4 mr-2" />
-                  CSV File (.csv)
-                </Button>
-              </div>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start hover:scale-105 transition-transform"
-                onClick={handleGenerateReport}
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Generate {reportFormat.toUpperCase()} Report
-              </Button>
-            </div>
-            
             <Button 
-              variant="outline" 
-              className="w-full justify-start hover:scale-105 transition-transform"
-              onClick={handleContactSupport}
+              variant={reportFormat === 'csv' ? "default" : "outline"}
+              size="sm"
+              onClick={() => setReportFormat('csv')}
+              className="flex-1"
             >
-              <Mail className="w-4 h-4 mr-2" />
-              Contact Support
+              <FileDown className="w-4 h-4 mr-2" />
+              CSV (.csv)
             </Button>
           </div>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start hover:bg-green-50 hover:border-green-300 hover:text-green-600 transition-all duration-200"
+            onClick={handleGenerateReport}
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Generate {reportFormat.toUpperCase()} Report
+          </Button>
         </div>
-      </CardContent>
-    </Card>
+        
+        <Button 
+          variant="outline" 
+          className="w-full justify-start hover:bg-orange-50 hover:border-orange-300 hover:text-orange-600 transition-all duration-200"
+          onClick={handleContactSupport}
+        >
+          <Mail className="w-4 h-4 mr-2" />
+          Contact Support
+        </Button>
+      </div>
+    </div>
   );
 };

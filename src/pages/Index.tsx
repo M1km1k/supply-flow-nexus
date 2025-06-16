@@ -1,6 +1,5 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Dashboard } from "@/components/Dashboard";
 import { ModularDashboard } from "@/components/dashboard/ModularDashboard";
 import { InventoryPage } from "@/components/InventoryPage";
@@ -29,15 +28,49 @@ const AppContent = () => {
   // Register service worker for offline functionality
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/serviceWorker.js')
-          .then(registration => {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-          })
-          .catch(err => {
-            console.log('ServiceWorker registration failed: ', err);
+      const swPath = '/serviceWorker.js';
+      
+      navigator.serviceWorker.register(swPath)
+        .then(registration => {
+          console.log('InventOMatic: ServiceWorker registration successful', registration.scope);
+          
+          // Handle updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('InventOMatic: New content available, will update automatically.');
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                }
+              });
+            }
           });
-      });
+
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('InventOMatic: Service worker updated, reloading page...');
+            window.location.reload();
+          });
+        })
+        .catch(err => {
+          console.log('InventOMatic: ServiceWorker registration failed:', err);
+        });
+
+      const handleOnline = () => {
+        console.log('InventOMatic: Back online');
+      };
+
+      const handleOffline = () => {
+        console.log('InventOMatic: Now offline - cached content will be served');
+      };
+
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
     }
   }, []);
 
@@ -47,7 +80,6 @@ const AppContent = () => {
       setBackgroundStyle(event.detail.style);
     };
 
-    // Load initial background preference
     const savedBackground = localStorage.getItem('background-animation') || 'gradient';
     setBackgroundStyle(savedBackground);
 
@@ -59,29 +91,22 @@ const AppContent = () => {
   }, []);
 
   const handleLogout = () => {
-    console.log('Logging out user');
     logout();
   };
 
-  // Debug authentication state
-  console.log('Authentication state:', { isAuthenticated, user: user?.email });
-
-  // Show login page if not authenticated
   if (!isAuthenticated) {
-    console.log('User not authenticated, showing login page');
     return <LoginPage />;
   }
   
-  console.log('User authenticated, showing main app');
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="min-h-screen flex w-full relative overflow-hidden">
         <BackgroundManager style={backgroundStyle} />
         <AppSidebar />
-        <div className="flex-1 flex flex-col relative z-10 min-w-0 ml-0">
+        <SidebarInset className="flex-1">
           <header className="h-14 sm:h-16 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center justify-between px-3 sm:px-4 lg:px-6 shadow-lg animate-slide-down flex-shrink-0">
             <div className="flex items-center min-w-0 flex-1 gap-2 sm:gap-3">
-              <SidebarTrigger className="hover:scale-110 transition-transform duration-200 text-gray-700 dark:text-gray-200 flex-shrink-0" />
+              <SidebarTrigger />
               <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent bg-[length:200%] animate-[gradient_12s_ease-in-out_infinite] truncate">
                 InventOMatic
               </h1>
@@ -92,14 +117,13 @@ const AppContent = () => {
               <div className="flex items-center space-x-2 sm:space-x-4 animate-slide-left">
                 <Badge variant="secondary" className="hidden sm:flex">
                   <Shield className="w-3 h-3 mr-1" />
-                  {user.role.toUpperCase()}
+                  {user.role?.toUpperCase() || 'USER'}
                 </Badge>
                 <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
                   <User className="w-4 h-4" />
-                  <span className="hidden md:inline">{user.name}</span>
+                  <span className="hidden md:inline">{user.name || 'User'}</span>
                 </div>
                 
-                {/* Functional Notification Dropdown */}
                 <NotificationDropdown />
                 
                 <Button 
@@ -129,7 +153,7 @@ const AppContent = () => {
               </div>
             </div>
           </main>
-        </div>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );
