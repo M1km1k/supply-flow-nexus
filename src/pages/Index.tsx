@@ -59,14 +59,20 @@ const AppContent = () => {
   }, []);
 
   const handleLogout = () => {
+    console.log('Logging out user');
     logout();
   };
 
+  // Debug authentication state
+  console.log('Authentication state:', { isAuthenticated, user: user?.email });
+
   // Show login page if not authenticated
   if (!isAuthenticated) {
+    console.log('User not authenticated, showing login page');
     return <LoginPage />;
   }
   
+  console.log('User authenticated, showing main app');
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="min-h-screen flex w-full relative overflow-hidden">
