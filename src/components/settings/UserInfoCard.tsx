@@ -1,47 +1,62 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { BasicInfoSection } from './userInfo/BasicInfoSection';
-import { NotificationSection } from './userInfo/NotificationSection';
-import { SystemPreferencesSection } from './userInfo/SystemPreferencesSection';
-import { useUserInfo } from './userInfo/useUserInfo';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 export const UserInfoCard: React.FC = () => {
-  const {
-    userInfo,
-    updateUserInfo,
-    updateNotification,
-    updatePreference,
-    saveUserInfo,
-    getRoleBadgeColor
-  } = useUserInfo();
+  const { toast } = useToast();
+  const [userInfo, setUserInfo] = useState({
+    fullName: 'John Doe',
+    role: 'Supply Manager',
+    department: 'Operations'
+  });
+
+  const handleSaveUserInfo = () => {
+    toast({ title: "Success", description: "User information updated successfully!" });
+  };
 
   return (
-    <div className="space-y-6">
-      <BasicInfoSection
-        userInfo={userInfo}
-        onUserInfoChange={updateUserInfo}
-        getRoleBadgeColor={getRoleBadgeColor}
-      />
+    <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-none rounded-none h-full">
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold text-gray-800 dark:text-white">
+          User Information
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label htmlFor="fullName">Full Name</Label>
+          <Input
+            id="fullName"
+            value={userInfo.fullName}
+            onChange={(e) => setUserInfo(prev => ({ ...prev, fullName: e.target.value }))}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="role">Role</Label>
+          <Input
+            id="role"
+            value={userInfo.role}
+            onChange={(e) => setUserInfo(prev => ({ ...prev, role: e.target.value }))}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="department">Department</Label>
+          <Input
+            id="department"
+            value={userInfo.department}
+            onChange={(e) => setUserInfo(prev => ({ ...prev, department: e.target.value }))}
+          />
+        </div>
 
-      <Separator className="bg-gray-200 dark:bg-gray-700" />
-
-      <NotificationSection
-        notifications={userInfo.notifications}
-        onNotificationChange={updateNotification}
-      />
-
-      <Separator className="bg-gray-200 dark:bg-gray-700" />
-
-      <SystemPreferencesSection
-        preferences={userInfo.preferences}
-        onPreferenceChange={updatePreference}
-      />
-
-      <Button onClick={saveUserInfo} className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-200">
-        Save User Information & Preferences
-      </Button>
-    </div>
+        <Button onClick={handleSaveUserInfo} className="w-full">
+          Save User Information
+        </Button>
+      </CardContent>
+    </Card>
   );
 };

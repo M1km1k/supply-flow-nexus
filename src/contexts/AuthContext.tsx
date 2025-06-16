@@ -38,9 +38,10 @@ export const useAuth = () => {
   return context;
 };
 
-// Mock user profiles - passwords should be handled securely via Supabase
-const mockUserProfiles: { [email: string]: Omit<User, 'id'> } = {
-  'admin@institution.edu': {
+// Mock user data - in real implementation, this would come from backend
+const mockUsers: User[] = [
+  {
+    id: '1',
     name: 'John Administrator',
     email: 'admin@institution.edu',
     role: 'admin',
@@ -55,7 +56,8 @@ const mockUserProfiles: { [email: string]: Omit<User, 'id'> } = {
       { resource: 'analytics', actions: ['read'] }
     ]
   },
-  'manager@institution.edu': {
+  {
+    id: '2',
     name: 'Sarah Manager',
     email: 'manager@institution.edu',
     role: 'manager',
@@ -69,7 +71,8 @@ const mockUserProfiles: { [email: string]: Omit<User, 'id'> } = {
       { resource: 'analytics', actions: ['read'] }
     ]
   },
-  'staff@institution.edu': {
+  {
+    id: '3',
     name: 'Mike Staff',
     email: 'staff@institution.edu',
     role: 'staff',
@@ -79,163 +82,45 @@ const mockUserProfiles: { [email: string]: Omit<User, 'id'> } = {
       { resource: 'transactions', actions: ['create'] }
     ]
   }
-};
-
-// Security utility functions
-const sanitizeEmail = (email: string): string => {
-  return email.toLowerCase().trim();
-};
-
-const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-const SESSION_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours
-const MAX_LOGIN_ATTEMPTS = 3;
-const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [sessionTimeout, setSessionTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  // Security: Check for valid session on mount
   useEffect(() => {
+    // Check for stored session
     const storedUser = localStorage.getItem('inventomatic_user');
-    const sessionTimestamp = localStorage.getItem('inventomatic_session_timestamp');
-    
-    if (storedUser && sessionTimestamp) {
-      const sessionAge = Date.now() - parseInt(sessionTimestamp);
-      
-      if (sessionAge < SESSION_TIMEOUT) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          setUser(parsedUser);
-          setIsAuthenticated(true);
-          startSessionTimer();
-        } catch (error) {
-          console.error('Invalid session data, clearing session');
-          logout();
-        }
-      } else {
-        console.log('Session expired, clearing session');
-        logout();
-      }
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
     }
   }, []);
 
-  const startSessionTimer = () => {
-    if (sessionTimeout) {
-      clearTimeout(sessionTimeout);
-    }
-    
-    const timeout = setTimeout(() => {
-      console.log('Session timeout reached, logging out');
-      logout();
-    }, SESSION_TIMEOUT);
-    
-    setSessionTimeout(timeout);
-  };
-
-  const getLoginAttempts = (email: string): number => {
-    const attempts = localStorage.getItem(`login_attempts_${email}`);
-    return attempts ? parseInt(attempts) : 0;
-  };
-
-  const incrementLoginAttempts = (email: string): void => {
-    const attempts = getLoginAttempts(email) + 1;
-    localStorage.setItem(`login_attempts_${email}`, attempts.toString());
-    
-    if (attempts >= MAX_LOGIN_ATTEMPTS) {
-      localStorage.setItem(`lockout_${email}`, Date.now().toString());
-    }
-  };
-
-  const isAccountLocked = (email: string): boolean => {
-    const lockoutTime = localStorage.getItem(`lockout_${email}`);
-    if (!lockoutTime) return false;
-    
-    const timeSinceLockout = Date.now() - parseInt(lockoutTime);
-    if (timeSinceLockout > LOCKOUT_DURATION) {
-      localStorage.removeItem(`lockout_${email}`);
-      localStorage.removeItem(`login_attempts_${email}`);
-      return false;
-    }
-    
-    return true;
-  };
-
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Input validation
-    if (!email || !password) {
-      console.error('Email and password are required');
-      return false;
-    }
-
-    const sanitizedEmail = sanitizeEmail(email);
+    // Mock authentication - in real implementation, this would validate against backend
+    const foundUser = mockUsers.find(u => u.email === email);
     
-    if (!isValidEmail(sanitizedEmail)) {
-      console.error('Invalid email format');
-      return false;
-    }
-
-    // Check for account lockout
-    if (isAccountLocked(sanitizedEmail)) {
-      console.error('Account is temporarily locked due to too many failed attempts');
-      return false;
-    }
-
-    // Find user profile
-    const userProfile = mockUserProfiles[sanitizedEmail];
-    
-    // For demo purposes, accept specific demo passwords
-    // In production, this should validate against Supabase authentication
-    const demoPasswords: { [key: string]: boolean } = {
-      'admin123': sanitizedEmail === 'admin@institution.edu',
-      'manager123': sanitizedEmail === 'manager@institution.edu',
-      'staff123': sanitizedEmail === 'staff@institution.edu'
+    // Simple password check (in real app, this would be properly hashed)
+    const validPasswords: { [key: string]: string } = {
+      'admin@institution.edu': 'admin123',
+      'manager@institution.edu': 'manager123',
+      'staff@institution.edu': 'staff123'
     };
     
-    if (userProfile && demoPasswords[password]) {
-      const authenticatedUser: User = {
-        ...userProfile,
-        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      };
-      
-      setUser(authenticatedUser);
+    if (foundUser && validPasswords[email] === password) {
+      setUser(foundUser);
       setIsAuthenticated(true);
-      
-      // Secure session storage
-      localStorage.setItem('inventomatic_user', JSON.stringify(authenticatedUser));
-      localStorage.setItem('inventomatic_session_timestamp', Date.now().toString());
-      localStorage.removeItem(`login_attempts_${sanitizedEmail}`);
-      localStorage.removeItem(`lockout_${sanitizedEmail}`);
-      
-      startSessionTimer();
-      
-      console.log('Login successful for:', sanitizedEmail);
+      localStorage.setItem('inventomatic_user', JSON.stringify(foundUser));
       return true;
     }
-    
-    // Log failed attempt
-    incrementLoginAttempts(sanitizedEmail);
-    console.error('Invalid credentials for:', sanitizedEmail);
     return false;
   };
 
   const logout = () => {
-    if (sessionTimeout) {
-      clearTimeout(sessionTimeout);
-      setSessionTimeout(null);
-    }
-    
     setUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem('inventomatic_user');
-    localStorage.removeItem('inventomatic_session_timestamp');
-    
-    console.log('User logged out successfully');
   };
 
   const hasPermission = (resource: string, action: string): boolean => {

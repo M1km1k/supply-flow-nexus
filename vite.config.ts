@@ -18,63 +18,20 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,woff,woff2,ttf}'],
-        cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-              }
-            }
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              }
-            }
-          }
-        ]
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}'],
+        cleanupOutdatedCaches: true
       },
-      includeAssets: ['favicon.ico', 'manifest.json'],
+      includeAssets: ['favicon.ico'],
       manifest: {
-        name: 'InventOMatic - Inventory Management System',
+        name: 'InventOMatic',
         short_name: 'InventOMatic',
-        description: 'Complete inventory management solution with offline capabilities',
-        theme_color: '#3b82f6',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait-primary',
-        scope: '/',
-        start_url: '/',
+        description: 'Inventory Management System',
+        theme_color: '#ffffff',
         icons: [
           {
             src: 'favicon.ico',
             sizes: '64x64',
-            type: 'image/x-icon',
-            purpose: 'any maskable'
+            type: 'image/x-icon'
           }
         ]
       }

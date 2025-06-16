@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,42 @@ import { AutomationStatsOverview } from './AutomationStatsOverview';
 import { AutomationRuleItem } from './AutomationRuleItem';
 import { DeleteRuleDialog } from './DeleteRuleDialog';
 
-const defaultRules: AutomationRule[] = [];
+const defaultRules: AutomationRule[] = [
+  {
+    id: '1',
+    name: 'Low Stock Alert',
+    trigger: 'low_stock',
+    condition: { threshold: 10 },
+    actions: [
+      { type: 'email_alert', recipients: ['admin@institution.edu'], message: 'Low stock alert triggered' },
+      { type: 'notify_admin' }
+    ],
+    isActive: true,
+    lastTriggered: '2024-06-13T10:30:00Z'
+  },
+  {
+    id: '2',
+    name: 'Auto Reorder Electronics',
+    trigger: 'low_stock',
+    condition: { threshold: 5, category: 'Electronics' },
+    actions: [
+      { type: 'reorder' },
+      { type: 'email_alert', recipients: ['procurement@institution.edu'] }
+    ],
+    isActive: true
+  },
+  {
+    id: '3',
+    name: 'Weekly Inventory Report',
+    trigger: 'scheduled',
+    condition: {},
+    actions: [
+      { type: 'generate_report' },
+      { type: 'email_alert', recipients: ['management@institution.edu'] }
+    ],
+    isActive: false
+  }
+];
 
 export const AutomationRules: React.FC = () => {
   const [rules, setRules] = useState<AutomationRule[]>(defaultRules);
