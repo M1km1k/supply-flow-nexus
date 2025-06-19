@@ -13,13 +13,15 @@ import { SupplierPerformanceChart } from '@/components/dashboard/SupplierPerform
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { NotificationToggle } from '@/components/dashboard/NotificationToggle';
 import { ModernNotificationSidebar } from '@/components/notifications/ModernNotificationSidebar';
+import { ObjectivesOverview } from '@/components/dashboard/ObjectivesOverview';
 
 export const Dashboard: React.FC = () => {
   const { inventory, suppliers, transactions } = useSupply();
   const [widgetVisibility, setWidgetVisibility] = useState({
     notifications: true,
     chatbot: true,
-    calendar: true
+    calendar: true,
+    objectives: true
   });
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
 
@@ -49,6 +51,13 @@ export const Dashboard: React.FC = () => {
       </div>
 
       <StatsGrid inventory={inventory} suppliers={suppliers} />
+
+      {/* Study Objectives Overview */}
+      {widgetVisibility.objectives && (
+        <div className="animate-slide-up">
+          <ObjectivesOverview />
+        </div>
+      )}
 
       {/* Enhanced Charts Section - Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

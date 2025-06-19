@@ -9,6 +9,10 @@ interface SystemPreferencesSectionProps {
     defaultView: string;
     itemsPerPage: string;
     autoRefresh: boolean;
+    predictiveAnalytics: boolean;
+    lowStockAlerts: boolean;
+    reorderPrompts: boolean;
+    dataExport: string;
   };
   onPreferenceChange: (key: string, value: string | boolean) => void;
 }
@@ -18,9 +22,10 @@ export const SystemPreferencesSection: React.FC<SystemPreferencesSectionProps> =
   onPreferenceChange
 }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">System Preferences</h3>
       
+      {/* Core System Settings */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="defaultView">Default Landing Page</Label>
@@ -30,9 +35,10 @@ export const SystemPreferencesSection: React.FC<SystemPreferencesSectionProps> =
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="dashboard">Dashboard</SelectItem>
-              <SelectItem value="inventory">Inventory</SelectItem>
-              <SelectItem value="transactions">Transactions</SelectItem>
-              <SelectItem value="suppliers">Suppliers</SelectItem>
+              <SelectItem value="inventory">Inventory Tracking</SelectItem>
+              <SelectItem value="transactions">Transaction Automation</SelectItem>
+              <SelectItem value="suppliers">Supplier Management</SelectItem>
+              <SelectItem value="analytics">Predictive Analytics</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -52,16 +58,83 @@ export const SystemPreferencesSection: React.FC<SystemPreferencesSectionProps> =
           </Select>
         </div>
       </div>
-      
-      <div className="flex items-center justify-between">
-        <div>
-          <Label>Auto-refresh Data</Label>
-          <p className="text-xs text-gray-500">Automatically update data every 30 seconds</p>
+
+      {/* Automated Workflow Features */}
+      <div className="space-y-4 border-t pt-4">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Automated Workflow Settings</h4>
+        
+        <div className="flex items-center justify-between">
+          <div>
+            <Label>Low-Inventory Stock Alerts</Label>
+            <p className="text-xs text-gray-500">Prompt timely reordering for low inventory items</p>
+          </div>
+          <Switch
+            checked={preferences.lowStockAlerts}
+            onCheckedChange={(checked) => onPreferenceChange('lowStockAlerts', checked)}
+          />
         </div>
-        <Switch
-          checked={preferences.autoRefresh}
-          onCheckedChange={(checked) => onPreferenceChange('autoRefresh', checked)}
-        />
+
+        <div className="flex items-center justify-between">
+          <div>
+            <Label>Automated Reorder Prompts</Label>
+            <p className="text-xs text-gray-500">Generate automated workflow triggers for reordering</p>
+          </div>
+          <Switch
+            checked={preferences.reorderPrompts}
+            onCheckedChange={(checked) => onPreferenceChange('reorderPrompts', checked)}
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <Label>Predictive Analytics Module</Label>
+            <p className="text-xs text-gray-500">Enable decision-making tree algorithm for inventory forecasting</p>
+          </div>
+          <Switch
+            checked={preferences.predictiveAnalytics}
+            onCheckedChange={(checked) => onPreferenceChange('predictiveAnalytics', checked)}
+          />
+        </div>
+      </div>
+
+      {/* Data Management */}
+      <div className="space-y-4 border-t pt-4">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Data Management</h4>
+        
+        <div>
+          <Label htmlFor="dataExport">Exportable Report Format</Label>
+          <Select value={preferences.dataExport} onValueChange={(value) => onPreferenceChange('dataExport', value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pdf">PDF Reports</SelectItem>
+              <SelectItem value="excel">Excel Spreadsheets</SelectItem>
+              <SelectItem value="csv">CSV Files</SelectItem>
+              <SelectItem value="json">JSON Data</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <Label>Auto-refresh Data</Label>
+            <p className="text-xs text-gray-500">Real-time inventory tracking updates</p>
+          </div>
+          <Switch
+            checked={preferences.autoRefresh}
+            onCheckedChange={(checked) => onPreferenceChange('autoRefresh', checked)}
+          />
+        </div>
+      </div>
+
+      {/* System Security */}
+      <div className="space-y-2 border-t pt-4">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Security & Access Control</h4>
+        <p className="text-xs text-gray-500">
+          Role-based access control (RBAC) is enabled to restrict system functions based on user roles.
+          Contact your administrator to modify access permissions.
+        </p>
       </div>
     </div>
   );
