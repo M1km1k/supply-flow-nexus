@@ -21,6 +21,10 @@ export interface UserInfoData {
     defaultView: string;
     itemsPerPage: string;
     autoRefresh: boolean;
+    predictiveAnalytics: boolean;
+    lowStockAlerts: boolean;
+    reorderPrompts: boolean;
+    dataExport: string;
   };
 }
 
@@ -45,7 +49,11 @@ export const useUserInfo = () => {
     preferences: {
       defaultView: 'dashboard',
       itemsPerPage: '25',
-      autoRefresh: true
+      autoRefresh: true,
+      predictiveAnalytics: true,
+      lowStockAlerts: true,
+      reorderPrompts: true,
+      dataExport: 'pdf'
     }
   });
 
@@ -62,7 +70,18 @@ export const useUserInfo = () => {
           fullName: user?.name || parsed.fullName || prev.fullName,
           email: user?.email || parsed.email || prev.email,
           role: user?.role || parsed.role || prev.role,
-          department: user?.department || parsed.department || prev.department
+          department: user?.department || parsed.department || prev.department,
+          // Ensure all preference properties exist with defaults
+          preferences: {
+            defaultView: 'dashboard',
+            itemsPerPage: '25',
+            autoRefresh: true,
+            predictiveAnalytics: true,
+            lowStockAlerts: true,
+            reorderPrompts: true,
+            dataExport: 'pdf',
+            ...parsed.preferences
+          }
         }));
       } catch (error) {
         console.error('Error loading user info:', error);
